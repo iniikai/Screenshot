@@ -1,0 +1,32 @@
+Screenshot Stash — Source-Available License
+
+Copyright (c) 2026 iniikai. All rights reserved.
+
+This source code is made publicly viewable for transparency, so that anyone
+can verify the extension's privacy claims — in particular, that it makes no
+network requests and stores all data locally.
+
+Permission is granted to:
+
+  1. View and read this source code.
+  2. Install and use the packaged extension as distributed through the
+     Chrome Web Store or by the copyright holder.
+  3. Fork this repository on GitHub solely as enabled by GitHub's Terms of
+     Service (for viewing and submitting contributions back to this project).
+
+No other rights are granted. Without prior written permission from the
+copyright holder, you may NOT:
+
+  - copy, modify, or create derivative works of this code;
+  - redistribute, republish, sublicense, or sell this code or any part of it;
+  - use this code, in whole or in part, in another product or extension.
+
+Contributions submitted to this repository (issues, pull requests) are
+welcome; by submitting one, you agree that your contribution is licensed to
+the copyright holder for use in this project.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+FROM THE USE OF THE SOFTWARE.

@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Screenshot Stash — Edit</title>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <header class="toolbar">
+    <a href="library.html" class="btn" id="back">← Library</a>
+    <div class="tool-group" role="group" aria-label="Tools">
+      <button class="btn tool active" data-tool="pen" title="Freehand pen">✎ Pen</button>
+      <button class="btn tool" data-tool="arrow" title="Arrow">→ Arrow</button>
+      <button class="btn tool" data-tool="rect" title="Rectangle outline">▭ Box</button>
+      <button class="btn tool" data-tool="blur" title="Pixelate a region (hide sensitive info)">▒ Blur</button>
+    </div>
+    <div class="tool-group">
+      <input type="color" id="color" value="#ef4444" title="Color">
+      <select id="width" class="select" title="Stroke width">
+        <option value="3">Thin</option>
+        <option value="6" selected>Medium</option>
+        <option value="12">Thick</option>
+      </select>
+    </div>
+    <button class="btn" id="undo" title="Undo last annotation">↩ Undo</button>
+    <span class="spacer"></span>
+    <button class="btn" id="save-copy" title="Save the annotated image as a new screenshot">Save as copy</button>
+    <button class="btn btn-primary" id="save-over" title="Replace the original screenshot">Save</button>
+  </header>
+
+  <main class="stage">
+    <canvas id="canvas"></canvas>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script type="module" src="editor.js"></script>
+</body>
+</html>

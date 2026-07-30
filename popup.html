@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <button id="capture" class="capture-btn">
+    <span class="capture-icon">📸</span> Capture this tab
+  </button>
+  <div class="capture-row">
+    <button id="capture-full" class="mode-btn" title="Scroll through the whole page and stitch one tall screenshot">⇕ Full page</button>
+    <button id="capture-area" class="mode-btn" title="Drag a rectangle on the page to capture just that part">⛶ Select area</button>
+  </div>
+  <p class="hint">or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> anywhere</p>
+
+  <div id="status" class="status" hidden></div>
+
+  <div id="recent" class="recent" hidden>
+    <div class="recent-label">Recent</div>
+    <div id="recent-strip" class="recent-strip"></div>
+  </div>
+
+  <button id="open-library" class="library-btn">
+    Open library (<span id="count">0</span>)
+  </button>
+
+  <p class="privacy-note">🔒 Captures stay on this device — never uploaded.</p>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

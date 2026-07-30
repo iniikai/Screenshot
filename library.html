@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Screenshot Stash — Library</title>
+  <link rel="stylesheet" href="library.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-row">
+      <h1>📸 Screenshot Stash</h1>
+      <input id="search" class="search" type="search" placeholder="Search title, URL or #tag…">
+      <select id="site-filter" class="select" title="Filter by site">
+        <option value="">All sites</option>
+      </select>
+      <span id="storage-meter" class="storage-meter" title="Total space used by your library"></span>
+      <button id="export-all" class="btn" title="Download the whole library as one zip">⬇ Export all</button>
+      <select id="auto-clean" class="select" title="Automatically delete old screenshots (runs locally)">
+        <option value="0">Keep forever</option>
+        <option value="7">Auto-delete after 7 days</option>
+        <option value="30">Auto-delete after 30 days</option>
+        <option value="90">Auto-delete after 90 days</option>
+      </select>
+    </div>
+    <div class="topbar-row">
+      <label class="select-all-label">
+        <input type="checkbox" id="select-all"> Select all
+      </label>
+      <span id="selection-count" class="selection-count"></span>
+      <button id="compare" class="btn" disabled title="Select exactly two screenshots to compare">⇔ Compare</button>
+      <button id="bulk-download" class="btn" disabled>⬇ Download selected</button>
+      <button id="bulk-delete" class="btn btn-danger" disabled>🗑 Delete selected</button>
+    </div>
+  </header>
+
+  <div id="toast" class="toast" hidden>
+    <span id="toast-text"></span>
+    <button id="toast-undo" class="toast-undo" hidden>Undo</button>
+  </div>
+
+  <main>
+    <section id="welcome" class="welcome" hidden>
+      <h2>Welcome to Screenshot Stash 👋</h2>
+      <p>Capture any tab with <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, or click the
+        <strong>📸 toolbar button</strong> for visible, full-page, or area captures.
+        Everything you capture lands here, ready to review, copy, download, edit or delete —
+        one at a time or in bulk.</p>
+      <p class="welcome-privacy">🔒 Your screenshots are stored only on this device. No account, no cloud, no tracking.</p>
+      <button id="welcome-dismiss" class="btn">Got it</button>
+    </section>
+
+    <div id="empty" class="empty" hidden>
+      <p>No screenshots yet.</p>
+      <p class="empty-hint">Click the extension icon and hit <strong>Capture this tab</strong>, or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> on any page.</p>
+    </div>
+    <div id="no-match" class="empty" hidden>
+      <p>No screenshots match your search.</p>
+    </div>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <footer class="privacy-note">
+    🔒 Your screenshots are stored only on this device — never uploaded anywhere, and gone forever once you delete them.
+  </footer>
+
+  <template id="card-template">
+    <div class="card">
+      <label class="card-check">
+        <input type="checkbox" class="select-box">
+      </label>
+      <span class="kind-badge" hidden></span>
+      <span class="dup-badge" hidden title="Looks nearly identical to another screenshot">≈ duplicate</span>
+      <img class="thumb" alt="Screenshot">
+      <div class="card-body">
+        <div class="card-title"></div>
+        <div class="card-meta"></div>
+        <div class="card-tags"></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-sm act-copy" title="Copy image to clipboard">📋</button>
+        <button class="btn btn-sm act-download" title="Download PNG">⬇</button>
+        <button class="btn btn-sm act-edit" title="Annotate: draw, arrows, blur">✏️</button>
+        <button class="btn btn-sm act-tag" title="Add a tag">🏷</button>
+        <button class="btn btn-sm btn-danger act-delete" title="Delete (undo available)">🗑</button>
+      </div>
+    </div>
+  </template>
+
+  <div id="compare-overlay" class="compare-overlay" hidden>
+    <div class="compare-pane"><img id="compare-a" alt="First screenshot"></div>
+    <div class="compare-pane"><img id="compare-b" alt="Second screenshot"></div>
+    <button id="compare-close" class="compare-close">✕ Close</button>
+  </div>
+
+  <script type="module" src="library.js"></script>
+</body>
+</html>
