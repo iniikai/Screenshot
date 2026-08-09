@@ -9,10 +9,15 @@ const countEl = document.getElementById('count');
 
 let objectUrls = [];
 
+async function currentTab() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  return tab;
+}
+
 captureBtn.addEventListener('click', async () => {
   captureBtn.disabled = true;
   try {
-    await captureActiveTab();
+    await captureActiveTab(await currentTab());
     showStatus('Saved to library ✓', 'ok');
     await refresh();
   } catch (err) {
@@ -22,16 +27,25 @@ captureBtn.addEventListener('click', async () => {
   }
 });
 
-// Full-page and area captures outlive the popup, so the background worker
-// runs them; the badge flashes when they finish.
-document.getElementById('capture-full').addEventListener('click', () => {
-  chrome.runtime.sendMessage({ type: 'capture-full-page' });
+// Full-page and area captures outlive the popup, so the background worker runs
+// them; the badge flashes when they finish. The worker can't resolve the tab on
+// its own (no "current window" there), so hand it over. Wait for the ack before
+// closing — an idle worker takes a moment to boot and the message is lost if
+// the sending page disappears first.
+async function startBackgroundCapture(type) {
+  const tab = await currentTab();
+  if (!tab) return;
+  const message = { type, tab };
+  try {
+    await chrome.runtime.sendMessage(message);
+  } catch {
+    await chrome.runtime.sendMessage(message).catch(() => {});
+  }
   window.close();
-});
-document.getElementById('capture-area').addEventListener('click', () => {
-  chrome.runtime.sendMessage({ type: 'capture-area' });
-  window.close();
-});
+}
+
+document.getElementById('capture-full').addEventListener('click', () => startBackgroundCapture('capture-full-page'));
+document.getElementById('capture-area').addEventListener('click', () => startBackgroundCapture('capture-area'));
 
 document.getElementById('open-library').addEventListener('click', openLibrary);
 

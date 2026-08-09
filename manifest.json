@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Screenshot Stash",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Capture tab screenshots into a private local library. Review, copy, annotate, download or delete them — one by one or in bulk.",
   "permissions": ["activeTab", "downloads", "scripting", "alarms", "storage"],
   "background": {

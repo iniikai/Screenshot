@@ -13,9 +13,9 @@ async function flashBadge(text, color) {
   setTimeout(refreshBadge, 1500);
 }
 
-async function runCapture(fn) {
+async function runCapture(fn, tab) {
   try {
-    const id = await fn();
+    const id = await fn(tab);
     if (id !== null) await flashBadge('+1', '#16a34a');
     return { ok: true, id };
   } catch (err) {
@@ -34,14 +34,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     refreshBadge();
     return;
   }
-  // Long-running captures run here so they survive the popup closing.
-  if (msg?.type === 'capture-full-page') {
-    runCapture(captureFullPage).then(sendResponse);
-    return true;
-  }
-  if (msg?.type === 'capture-area') {
-    runCapture(captureArea).then(sendResponse);
-    return true;
+  // Long-running captures run here so they survive the popup closing. Ack
+  // before starting: the popup waits for it, so a worker that was asleep is
+  // provably awake and holding the message before the popup goes away.
+  const capture = { 'capture-full-page': captureFullPage, 'capture-area': captureArea }[msg?.type];
+  if (capture) {
+    sendResponse({ started: true });
+    runCapture(capture, msg.tab);
   }
 });
 
