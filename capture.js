@@ -12,10 +12,14 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function activeTab() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab) throw new Error('No active tab found.');
-  return tab;
+// Callers that already know the tab (the popup) pass it in. The service worker
+// has no "current window", so `currentWindow: true` would match nothing there —
+// it has to anchor to the last focused browser window instead.
+async function resolveTab(tab) {
+  if (tab?.id != null) return tab;
+  const [found] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!found) throw new Error('No active tab found.');
+  return found;
 }
 
 async function grabVisible(windowId) {
@@ -23,7 +27,10 @@ async function grabVisible(windowId) {
     return await chrome.tabs.captureVisibleTab(windowId, { format: 'png' });
   } catch (err) {
     // chrome://, the Web Store and other protected pages cannot be captured.
-    throw new Error('This page cannot be captured (Chrome blocks capturing browser-internal pages).');
+    if (/permission|access|cannot be scripted/i.test(err.message)) {
+      throw new Error('This page cannot be captured (Chrome blocks capturing browser-internal pages).');
+    }
+    throw err;
   }
 }
 
@@ -68,8 +75,8 @@ async function saveBitmapAsShot(bitmap, tab, kind) {
   return id;
 }
 
-export async function captureActiveTab() {
-  const tab = await activeTab();
+export async function captureActiveTab(fromTab) {
+  const tab = await resolveTab(fromTab);
   const dataUrl = await grabVisible(tab.windowId);
   const blob = await (await fetch(dataUrl)).blob();
   const bitmap = await createImageBitmap(blob);
@@ -110,8 +117,8 @@ function unpinAndRestore(y) {
   window.scrollTo(0, y);
 }
 
-export async function captureFullPage() {
-  const tab = await activeTab();
+export async function captureFullPage(fromTab) {
+  const tab = await resolveTab(fromTab);
   const [{ result: m }] = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: pageMetrics,
@@ -211,8 +218,8 @@ function selectAreaOverlay() {
   });
 }
 
-export async function captureArea() {
-  const tab = await activeTab();
+export async function captureArea(fromTab) {
+  const tab = await resolveTab(fromTab);
   const [{ result: rect }] = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: selectAreaOverlay,
