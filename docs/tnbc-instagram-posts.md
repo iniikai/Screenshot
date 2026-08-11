@@ -1,90 +1,90 @@
-# Triple Negative Breast Cancer — Instagram Post Series
+# Triple Negative Breast Cancer — Instagram Carousel Series
 
-A text-only Instagram series that closes common knowledge gaps about triple
+A text-first Instagram series that closes common knowledge gaps about triple
 negative breast cancer (TNBC) for the general public.
 
+**Format:** 5 carousel posts (each carousel is one Instagram post made of
+several slides).
 **Audience:** US general public.
-**Reading level:** At or below US grade 4 (Flesch–Kincaid checked; every post
-tests between grade 1 and 4).
+**Tone:** Informative and calm — facts first, no scare tactics, no blame.
+**Reading level:** At or below US grade 4 (Flesch–Kincaid checked).
 **Fact basis:** American Cancer Society, National Cancer Institute (SEER),
 USPSTF 2024 screening guidance, FDA actions, Susan G. Komen, BreastCancer.org,
 and peer-reviewed studies (current as of August 2026). Every statistic was
-adversarially fact-checked against these sources. Posts were also reviewed for
-tone (no fear-mongering, no patient blame, respectful of metastatic patients),
-inclusivity, and plain-language clarity.
+adversarially fact-checked against these sources. Content was also reviewed
+for tone, inclusivity, and plain-language clarity.
 **Deliberate omissions:** Alcohol risk (mainly linked to hormone-positive
 breast cancer, not TNBC) and the deodorant/underwire myths (low impact on
 care-seeking) were left out to keep the series focused.
 
 ---
 
-## Post 1 — "Triple Negative" Sounds Scary. Let's Break It Down.
+## Post 1 — The Basics (carousel, 6 slides)
 
-Breast cancer is not just one disease. There are a few kinds.
+### Slide 1 (cover)
+
+Triple negative breast cancer.
+
+The basics, explained simply.
+
+### Slide 2
+
+Breast cancer is not one disease. There are a few kinds.
 
 Doctors test each cancer for three things that can help it grow.
 
+### Slide 3
+
 "Triple negative" means the cancer has none of those three things.
 
-It does NOT mean the cancer can't be treated. It can.
+So some drugs do not work on it. Other drugs do.
 
-It just means some drugs won't work. So doctors use other ones that do.
+### Slide 4
 
-About 1 in 10 breast cancers are this kind.
+About 1 in 10 breast cancers are triple negative.
 
-Share this post. Someone you love may need it.
+It is more common in women under 40, in Black women, and in people with a change in a gene called BRCA.
+
+### Slide 5
+
+Most people with breast cancer had no family history. About 8 out of 10.
+
+And cancer genes can come from your dad's side too. Not just your mom's.
+
+### Slide 6 (end)
+
+It is treatable.
+
+Found early, most people do well.
 
 Source: American Cancer Society
 
+**Caption:** Triple negative breast cancer, explained in plain words. The
+name means three drug targets are missing — not that treatment is. Save this
+post for someone who may want it. Source: American Cancer Society.
 #TNBC #TripleNegativeBreastCancer #BreastCancerAwareness #KnowTheFacts
 
-## Post 2 — You Are Never "Too Young"
+---
 
-Think you are too young for breast cancer? Think again.
+## Post 2 — Signs to Know (carousel, 6 slides)
 
-Triple negative breast cancer hits women under 40 more often than other kinds do.
+### Slide 1 (cover)
 
-This is extra true for Black and Hispanic women.
+Breast changes worth knowing about.
 
-It is easy to think a lump is nothing. Even a doctor may say you are too young.
+A short, simple guide.
 
-But this cancer can grow fast. So trust yourself.
+### Slide 2
 
-Did you find a new lump or a change? Ask for a check now. Even if you are 25.
+Most breast cancer lumps do not hurt.
 
-If someone waves you off, ask again.
+"No pain" does not mean "no problem."
 
-Source: American Cancer Society
+### Slide 3
 
-#TNBC #BreastCancerUnder40 #CheckYourself #BreastCancerAwareness
+Signs to know:
 
-## Post 3 — No Family History? You Can Still Get It.
-
-"No one in my family had breast cancer. So I am safe."
-
-Not true.
-
-Most people with breast cancer had NO family history at all. That is about 8 out of 10 cases.
-
-Here is one more surprise. Cancer genes can come from your dad's side too. Not just your mom's.
-
-So ask about cancer on both sides of your family. Your mom's side and your dad's side.
-
-And get any change checked. Even if no one in your family has had cancer.
-
-Source: American Cancer Society
-
-#TNBC #BreastCancerFacts #KnowYourRisk #BreastCancerAwareness
-
-## Post 4 — Most Breast Cancer Lumps Don't Hurt
-
-Many people think "no pain, no problem." That is a myth.
-
-Most breast cancer lumps do not hurt at all.
-
-Watch for these signs:
-
-- A new lump in your breast or armpit
+- A new lump in the breast or armpit
 - One breast changes size or shape
 - Skin that dimples like an orange peel
 - A nipple that turns in, leaks, or hurts
@@ -92,250 +92,185 @@ Watch for these signs:
 
 On darker skin, the change may look purple or dark, not red.
 
-One more thing. Men can get breast cancer too. So can trans people. These signs matter for every body.
+### Slide 4
 
-Know what is normal for YOU. If something changes, get checked fast.
+Some breast cancers make no lump at all.
 
-Source: American Cancer Society
+One rare kind, inflammatory breast cancer, can look like an infection: red, swollen, and warm.
 
-#TNBC #KnowYourNormal #BreastCancerSigns #BreastCancerAwareness
+If infection medicine does not help within about a week, it is okay to ask for another look.
 
-## Post 5 — No Lump? It Can Still Be Cancer.
+### Slide 5
 
-Some breast cancers never make a lump.
+Men can get breast cancer too. So can trans people.
 
-One rare kind grows fast. Doctors call it inflammatory breast cancer.
+The same signs apply to every body.
 
-It makes the breast red, swollen, and warm.
+### Slide 6 (end)
 
-The skin can look like an orange peel.
+Know what is normal for you.
 
-It can look just like an infection.
-
-Did the doctor treat it like an infection? If it is not better after about a week, go back.
-
-Ask them to check for cancer. It is okay to ask.
+A change is worth a doctor visit. That is all a check is — a visit.
 
 Source: American Cancer Society
 
-#InflammatoryBreastCancer #ListenToYourBody #BreastCancerAwareness #TNBC
+**Caption:** The signs of breast cancer, in plain words — including the ones
+without a lump. Knowing what is normal for you makes changes easier to spot.
+Source: American Cancer Society.
+#KnowYourNormal #BreastCancerSigns #TNBC #BreastCancerAwareness
 
-## Post 6 — Your Mammogram Was Clear? Keep Checking.
+---
 
-Good news: your mammogram was clear. (A mammogram is a breast X-ray.)
+## Post 3 — Mammograms, Simply (carousel, 6 slides)
 
-But triple negative breast cancer grows fast.
+### Slide 1 (cover)
 
-It can show up in the months between scans.
+Mammograms, simply.
 
-People find this cancer themselves more often than they find other kinds.
+What to know in 2026.
 
-So stay aware of how your breasts look and feel.
+### Slide 2
 
-Did a new lump show up after a clear scan? Do not ignore it.
+A mammogram is a breast X-ray.
 
-A lump you can feel needs more tests, like an ultrasound. Even if the scan looks fine.
+Most women can start at age 40, then go every 1 to 2 years.
 
-And keep getting your mammograms. They still save lives.
+The US advice changed in 2024. It used to say 50.
 
-Source: American Cancer Society and medical imaging studies
+### Slide 3
 
-#TNBC #MammogramFacts #KnowYourNormal #BreastCancerAwareness
+Some people can start earlier.
 
-## Post 7 — Mammograms Now Start at 40
+A cancer gene in the family, or a mom or sister who had breast cancer, can mean a yearly MRI scan — some start at age 25.
 
-Quick quiz: when should most women start mammograms? (A mammogram is a breast X-ray.)
+By age 30, it helps to ask a doctor about your own risk.
 
-Many say 50. The answer is now 40.
+### Slide 4
 
-US experts changed the advice in 2024.
+Your mammogram letter now says if your breasts are "dense."
 
-Most women should get a scan every 1 to 2 years, starting at 40.
+About half of women over 40 have dense breasts. It is normal.
 
-Some people need to start much earlier. Like people who carry a cancer gene. Or whose mom or sister had breast cancer.
+But dense tissue can hide a cancer on the scan. A good question to ask: "Would an ultrasound or MRI help too?"
 
-High-risk people can also get a yearly MRI scan. Some start at age 25.
+### Slide 5
 
-By age 30, ask a doctor about your risk.
+Triple negative breast cancer grows faster than most kinds.
 
-It could save your life.
+So it can show up in the months between scans, and many people notice it themselves first.
 
-Source: US screening guidelines (USPSTF, 2024)
+Knowing your normal helps. And mammograms are still well worth keeping up.
 
-#TNBC #Mammogram #ScreeningSavesLives #BreastCancerAwareness
+### Slide 6 (end)
 
-## Post 8 — "Triple Negative" Does Not Mean No Hope
+Start at 40 for most. Earlier for some.
 
-Here is what many people get wrong.
+Read your results letter. Know your normal between scans.
 
-They hear "triple negative breast cancer" and think nothing works. Not true.
+Sources: US screening guidelines (USPSTF, 2024), FDA, American Cancer Society
+
+**Caption:** Mammogram advice changed in 2024 — most women can now start at
+40. Here is the short version, plus what "dense breasts" means on your
+results letter. Sources: USPSTF, FDA, American Cancer Society.
+#Mammogram #DenseBreasts #TNBC #BreastCancerAwareness
+
+---
+
+## Post 4 — Treatment, Explained (carousel, 6 slides)
+
+### Slide 1 (cover)
+
+"Triple negative" does not mean untreatable.
+
+Here is what treatment looks like.
+
+### Slide 2
 
 Chemo — strong medicine that kills cancer cells — works well on this cancer.
 
 It can make the cancer shrink fast.
 
-There are new drugs too. Some wake up your body's own defenses to fight cancer.
+### Slide 3
 
-Doctors often give chemo BEFORE surgery. That is normal. It is not a bad sign.
+Doctors often give chemo before surgery. That is the plan, not a bad sign.
 
-It shrinks the cancer. And it shows the drugs are working.
+It shrinks the cancer and shows the medicine is working.
 
-One more thing. This cancer does not always mean losing your breast. Many people have smaller surgery instead.
+And surgery does not always mean losing the breast. Many people have smaller surgery instead.
 
-Treatments get better every year.
+### Slide 4
 
-Source: American Cancer Society and FDA
+There are newer drugs too.
 
-#TNBC #TripleNegativeBreastCancer #ThereIsHope #CancerTreatment
+Some wake up the body's own defenses to fight cancer.
 
-## Post 9 — Finding It Early Helps. A Lot.
+Some are special pills for people with a BRCA gene change. A simple blood or spit test can check for it. Most people with this cancer are now offered that test.
 
-Here is the number that matters most.
+### Slide 5
 
-When triple negative breast cancer is found early, more than 9 out of 10 people are alive 5 years later.
+Every new drug for this cancer came from a clinical trial. A trial is a careful study that tests new medicine.
 
-Found later? There is still real care and real hope. New drugs help at every stage.
+Trials are open at any stage. "Is there a trial for me?" is always a fair thing to ask.
 
-And no one is to blame. This cancer can be sneaky.
+### Slide 6 (end)
 
-But it moves fast. So you should too.
+Found early, more than 9 out of 10 people are alive 5 years later.
 
-Did you find a new lump or a change? Call your doctor this week. Not next month.
+After treatment, the chance of it coming back drops a lot after the first few years.
 
-Fast action saves lives.
+And treatments get better every year.
 
-Source: National Cancer Institute (SEER)
+Sources: American Cancer Society, National Cancer Institute (SEER)
 
-#TNBC #EarlyDetection #ActFast #BreastCancerAwareness
+**Caption:** What treating this cancer really looks like: chemo that works,
+planned chemo before surgery, newer drugs, gene tests, and trials. Sources:
+American Cancer Society, NCI (SEER).
+#TNBC #CancerTreatment #ThereIsHope #ClinicalTrials
 
-## Post 10 — Ask About a Gene Test
+---
 
-Were you or a loved one told the cancer is triple negative?
+## Post 5 — Facts for Black Women (carousel, 5 slides)
 
-Ask about a gene test. Experts now say most people with this cancer should get one.
+### Slide 1 (cover)
 
-Why? Some people have a change in a gene called BRCA (say: BRAK-uh). Genes are passed down in families.
+Triple negative breast cancer.
 
-If the test finds it, special pills can help fight the cancer.
+Facts for Black women.
 
-The test can also warn your family about their own risk.
+### Slide 2
 
-Is your family Ashkenazi Jewish? Then a BRCA change is more likely. Ask about testing even with no cancer in the family.
+Black women get this cancer about two times more often than white women.
 
-Did the cancer spread? Ask if it was tested again. New tests can unlock new drugs.
+Researchers are still studying why. It is likely a mix of genes, health, and unequal care.
 
-It is a simple blood or spit test. Ask for it.
+### Slide 3
 
-Source: US cancer care guidelines (NCCN and ASCO)
+Black women get mammograms just as often as white women.
 
-#TNBC #BRCA #GeneticTesting #KnowYourRisk
+The difference shows up after the scan: longer waits for the next test, or for treatment to start.
 
-## Post 11 — Black Women and TNBC: Know the Facts
+Those delays are a system problem. Not a personal one.
 
-Black women get triple negative breast cancer two times more often than white women.
+### Slide 4
 
-Black women are also more likely to die from breast cancer.
+Things that can help:
 
-That is not fair. And much of this can be fixed.
+- Before leaving a visit, ask when the next test will be
+- Bring a friend to appointments
+- Ask questions until answers are clear
 
-Here is a key fact. Black women get mammograms just as often as white women.
+With fast, fair care, the gap gets much smaller.
 
-The delays come after the scan. Waiting too long for the next test. Or for treatment to start.
+### Slide 5 (end)
 
-These delays are not your fault. The health system often moves slower for Black women. That must change.
+One more fact: very few Black women are in the studies that test new drugs.
 
-Here is the hope: with fast, fair care, the gap gets much smaller.
-
-If this is you: did a scan find something? Push for the next test fast. Days, not months.
-
-Bring a friend. Ask questions. You deserve fast care. Full stop.
+Joining a clinical trial is one way to make new medicine work for everyone. It is always okay to ask about.
 
 Source: American Cancer Society research
 
+**Caption:** Triple negative breast cancer is about twice as common in Black
+women — and the care gap after screening is a system issue, not a personal
+one. Here are the facts and a few things that help. Source: American Cancer
+Society research.
 #TNBC #BlackWomenAndBreastCancer #HealthEquity #BreastCancerAwareness
-
-## Post 12 — After Treatment: Real Hope
-
-Worried triple negative breast cancer always comes back? Here is the truth.
-
-Most people treated early never see it come back.
-
-The risk is highest in the first 3 to 5 years. Then it drops a lot.
-
-After 5 years cancer free, the risk is very low.
-
-One more thing. The survival numbers you see online come from people treated years ago.
-
-Treatments have improved since then. Your outlook may be better than those numbers say.
-
-Living with cancer that spread? There is real care and real progress for you too.
-
-Every cancer-free year is a real win. Celebrate it.
-
-Source: American Cancer Society and medical studies
-
-#TNBC #TNBCSurvivor #LifeAfterTreatment #ThereIsHope
-
-## Post 13 — Your Mammogram Letter Has a Clue. Read It.
-
-Your mammogram report now tells you if your breasts are "dense." (A mammogram is a breast X-ray.)
-
-This is a new US rule. Every report must say it.
-
-About half of women over 40 have dense breasts.
-
-Dense tissue is normal. But it can hide a cancer on the scan.
-
-It also raises your risk a little.
-
-Does your letter say "dense"? Then ask your doctor one thing:
-
-"Do I need an ultrasound or MRI too?"
-
-One letter. One question. It could catch a cancer early.
-
-Source: FDA rule (2024) and American Cancer Society
-
-#DenseBreasts #TNBC #MammogramFacts #BreastCancerAwareness
-
-## Post 14 — Two Things That May Lower Your Risk
-
-Few people know this.
-
-Breastfeeding lowers the risk of triple negative breast cancer.
-
-Keeping belly fat down before menopause may lower it too.
-
-Could not breastfeed? Chose not to? That is okay. This is not about blame.
-
-No one causes their own cancer.
-
-It is about support. New moms need real help to breastfeed.
-
-Are you pregnant, or a new mom? Ask for that help. It protects you too.
-
-Source: published cancer research
-
-#TNBC #Breastfeeding #CancerPrevention #BreastCancerAwareness
-
-## Post 15 — Where New Cancer Drugs Come From
-
-Every new drug for triple negative breast cancer came from a clinical trial.
-
-A clinical trial is a careful study that tests new medicine.
-
-Trials are not a last hope. You can join at any stage.
-
-You may get tomorrow's medicine today.
-
-One more thing. Very few Black women are in these trials.
-
-So new drugs get tested on too few of the people who need them most.
-
-Doctors do not always bring up trials. So ask: "Is there a trial for me?"
-
-It is a fair question. Ask it.
-
-Source: National Cancer Institute
-
-#TNBC #ClinicalTrials #CancerResearch #BreastCancerAwareness
