@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Screenshot Stash — Full Page Screen Capture & Library",
+  "name": "Screenshot Stash — Multi Screenshot & Full Page Capture",
   "version": "1.0.2",
-  "description": "Screenshot tool with a private local library: capture full page, visible area or region, then annotate, copy or bulk-delete.",
+  "description": "Take multiple screenshots into a private local library: full page, visible tab or region. Annotate, copy, download or bulk-delete.",
   "permissions": ["activeTab", "downloads", "scripting", "alarms", "storage"],
   "background": {
     "service_worker": "background.js",

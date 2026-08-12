@@ -133,10 +133,40 @@ function pageMetrics() {
   };
 }
 
+// Returns where the page actually landed, which is not always where it was
+// asked to go — infinite feeds move the ground underfoot, and a page that has
+// stopped moving means there is nothing more to capture.
 function scrollToOffset(y) {
   const scroller = document.querySelector('[data-stash-scroller]');
-  if (scroller) scroller.scrollTop = y;
-  else window.scrollTo(0, y);
+  if (scroller) {
+    scroller.scrollTop = y;
+    return scroller.scrollTop;
+  }
+  window.scrollTo(0, y);
+  return window.scrollY;
+}
+
+// Feeds hang their images off lazy loading, so a fixed delay either wastes time
+// on simple pages or captures half-loaded ones. Wait for the images actually on
+// screen, with a ceiling so a single stalled request cannot hold up the capture.
+function settleViewport() {
+  const height = window.innerHeight;
+  const pending = [...document.images].filter((img) => {
+    const r = img.getBoundingClientRect();
+    return r.bottom > 0 && r.top < height && r.width > 0 && !img.complete;
+  });
+  const loaded = Promise.all(
+    pending.map(
+      (img) =>
+        new Promise((resolve) => {
+          img.addEventListener('load', resolve, { once: true });
+          img.addEventListener('error', resolve, { once: true });
+        }),
+    ),
+  );
+  return Promise.race([loaded, new Promise((r) => setTimeout(r, 1500))]).then(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+  );
 }
 
 // Fixed/sticky headers would repeat in every stitched segment, so hide them
@@ -182,16 +212,25 @@ export async function captureFullPage(fromTab) {
   const segments = Math.min(Math.ceil(m.scrollHeight / m.viewportHeight), MAX_FULL_PAGE_SEGMENTS);
   const bitmaps = [];
   const offsets = [];
+  let lastY = -1;
   try {
     for (let i = 0; i < segments; i++) {
-      const y = Math.min(i * m.viewportHeight, m.scrollHeight - m.viewportHeight);
-      await chrome.scripting.executeScript({
+      const target = Math.min(i * m.viewportHeight, m.scrollHeight - m.viewportHeight);
+      const [{ result: y }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: scrollToOffset,
-        args: [y],
+        args: [target],
       });
-      // Gives lazy-loaded images time to arrive and scroll handlers time to run.
+      // The page refused to go any further, so every remaining segment would
+      // just repeat this one.
+      if (i > 0 && y <= lastY + 1) break;
+      lastY = y;
+
+      // Lets scroll handlers run and lazy content start arriving.
       await sleep(CAPTURE_DELAY_MS);
+      await chrome.scripting
+        .executeScript({ target: { tabId: tab.id }, func: settleViewport })
+        .catch(() => {});
       if (i > 0) {
         await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: hidePinned });
       }
@@ -225,7 +264,11 @@ export async function captureFullPage(fromTab) {
   }
 
   const scale = bitmaps[0].height / m.viewportHeight; // device pixel ratio
-  const totalHeight = Math.round(Math.min(m.scrollHeight, segments * m.viewportHeight) * scale);
+  // Measured from what was actually captured, not from the segments planned —
+  // the loop stops early when the page runs out of scroll, and the difference
+  // would otherwise be blank space at the bottom.
+  const reached = offsets[offsets.length - 1] + m.viewportHeight;
+  const totalHeight = Math.round(Math.min(m.scrollHeight, reached) * scale);
   const canvas = new OffscreenCanvas(bitmaps[0].width, totalHeight);
   const g = canvas.getContext('2d');
   bitmaps.forEach((bmp, i) => g.drawImage(bmp, 0, Math.round(offsets[i] * scale)));

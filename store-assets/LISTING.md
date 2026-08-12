@@ -6,11 +6,11 @@ the dashboard by hand.
 
 ## Title (manifest `name`, max 75)
 
-Screenshot Stash — Full Page Screen Capture & Library
+Screenshot Stash — Multi Screenshot & Full Page Capture
 
 ## Summary (manifest `description`, max 132)
 
-Screenshot tool with a private local library: capture full page, visible area or region, then annotate, copy or bulk-delete.
+Take multiple screenshots into a private local library: full page, visible tab or region. Annotate, copy, download or bulk-delete.
 
 ## Category
 
