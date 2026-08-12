@@ -121,13 +121,21 @@ async function showShortcuts() {
   const bound = (await chrome.commands.getAll()).filter((c) => c.shortcut && labels[c.name]);
   if (!bound.length) return;
 
-  hint.append('Works anywhere: ');
-  bound.forEach((command, i) => {
-    if (i) hint.append(' · ');
+  const heading = document.createElement('div');
+  heading.className = 'hint-heading';
+  heading.textContent = 'Works anywhere';
+  hint.append(heading);
+
+  for (const command of bound) {
+    const row = document.createElement('div');
+    row.className = 'hint-row';
     const key = document.createElement('kbd');
     key.textContent = command.shortcut;
-    hint.append(key, ` ${labels[command.name]}`);
-  });
+    const what = document.createElement('span');
+    what.textContent = labels[command.name];
+    row.append(key, what);
+    hint.append(row);
+  }
   hint.hidden = false;
 }
 

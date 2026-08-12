@@ -62,6 +62,7 @@
       <button id="bulk-rename" class="btn" disabled title="Give them all one name, numbered">✎ Rename selected</button>
       <button id="bulk-download" class="btn" disabled>⬇ Download selected</button>
       <button id="bulk-delete" class="btn btn-danger" disabled>🗑 Delete selected</button>
+      <button id="undo" class="btn" disabled title="Bring back the screenshots you just deleted">↩ Undo delete</button>
       <span class="keyhint">Arrow keys to move · <kbd>Space</kbd> preview · <kbd>Delete</kbd> remove</span>
     </div>
   </header>
@@ -98,14 +99,16 @@
 
   <template id="card-template">
     <div class="card" tabindex="-1">
-      <label class="card-check">
-        <input type="checkbox" class="select-box">
-      </label>
       <span class="kind-badge" hidden></span>
       <span class="dup-badge" hidden title="Looks nearly identical to another screenshot">≈ duplicate</span>
       <img class="thumb" alt="Screenshot" draggable="true" title="Click to preview · drag into another app">
       <div class="card-body">
-        <div class="card-title"></div>
+        <div class="card-heading">
+          <label class="card-check">
+            <input type="checkbox" class="select-box">
+          </label>
+          <div class="card-title"></div>
+        </div>
         <div class="card-note" hidden></div>
         <div class="card-meta"></div>
         <div class="card-tags"></div>

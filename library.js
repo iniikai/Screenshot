@@ -15,6 +15,7 @@ const compareBtn = document.getElementById('compare');
 const bulkRenameBtn = document.getElementById('bulk-rename');
 const bulkDownloadBtn = document.getElementById('bulk-download');
 const bulkDeleteBtn = document.getElementById('bulk-delete');
+const undoBtn = document.getElementById('undo');
 const searchInput = document.getElementById('search');
 const siteFilter = document.getElementById('site-filter');
 const storageMeter = document.getElementById('storage-meter');
@@ -105,9 +106,14 @@ async function render() {
   refreshStorageMeter();
   applyFilters();
 
-  // Drop selections and cached URLs for shots that no longer exist.
+  // Keep the selection to what is actually on screen. Otherwise "Delete
+  // selected" acts on shots the filter is hiding — you narrow fifty down to
+  // two, press delete, and lose all fifty.
+  const onScreen = new Set(visible.map((s) => s.id));
+  for (const id of selected) if (!onScreen.has(id)) selected.delete(id);
+
+  // Release cached URLs for shots that no longer exist.
   const ids = new Set(shots.map((s) => s.id));
-  for (const id of selected) if (!ids.has(id)) selected.delete(id);
   for (const [id, url] of urlCache) {
     if (!ids.has(id)) {
       URL.revokeObjectURL(url);
@@ -305,22 +311,35 @@ async function removeShots(ids) {
   await render();
 
   pendingUndo = records;
+  updateUndoUi();
   const label = ids.length === 1 ? 'Screenshot deleted' : `${ids.length} screenshots deleted`;
-  toast(label, {
-    undo: async () => {
-      const toRestore = pendingUndo;
-      pendingUndo = null;
-      if (!toRestore) return;
-      await restoreShots(toRestore);
-      notifyShotsChanged();
-      await render();
-      toast('Restored');
-    },
-  });
+  toast(label, { undo: performUndo });
 }
+
+// The toast is easy to miss, so the button stays available until the next
+// delete replaces the batch — the toast is just the faster way to reach it.
+async function performUndo() {
+  const toRestore = pendingUndo;
+  pendingUndo = null;
+  updateUndoUi();
+  if (!toRestore?.length) return;
+  await restoreShots(toRestore);
+  notifyShotsChanged();
+  await render();
+  toast(toRestore.length === 1 ? 'Screenshot restored' : `${toRestore.length} screenshots restored`);
+}
+
+function updateUndoUi() {
+  const n = pendingUndo?.length || 0;
+  undoBtn.disabled = n === 0;
+  undoBtn.textContent = n > 1 ? `↩ Undo delete (${n})` : '↩ Undo delete';
+}
+
+undoBtn.addEventListener('click', performUndo);
 
 async function commitPendingUndo() {
   pendingUndo = null;
+  updateUndoUi();
 }
 
 // ---------- bulk actions ----------
@@ -337,7 +356,7 @@ selectAllBox.addEventListener('change', () => {
 });
 
 bulkRenameBtn.addEventListener('click', async () => {
-  const ids = visible.filter((s) => selected.has(s.id)).map((s) => s.id);
+  const ids = selectedIds();
   if (!ids.length) return;
   const answer = await askDialog({
     title: `Rename ${ids.length} screenshot${ids.length === 1 ? '' : 's'}`,
@@ -365,15 +384,20 @@ bulkRenameBtn.addEventListener('click', async () => {
   toast(`Renamed ${ids.length} screenshot${ids.length === 1 ? '' : 's'}`);
 });
 
+// Always in display order, and always only what is on screen.
+function selectedIds() {
+  return visible.filter((s) => selected.has(s.id)).map((s) => s.id);
+}
+
 bulkDownloadBtn.addEventListener('click', async () => {
-  const ids = [...selected];
+  const ids = selectedIds();
   for (const id of ids) {
     await downloadShot(id);
   }
   toast(`Downloading ${ids.length} screenshot${ids.length === 1 ? '' : 's'}`);
 });
 
-bulkDeleteBtn.addEventListener('click', () => removeShots([...selected]));
+bulkDeleteBtn.addEventListener('click', () => removeShots(selectedIds()));
 
 compareBtn.addEventListener('click', async () => {
   const [a, b] = [...selected];
@@ -404,10 +428,24 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Chrome owns the shortcut editor; an extension cannot rebind keys itself, and
-// a plain link to a chrome:// URL is blocked, so open it as a tab.
-document.getElementById('shortcuts').addEventListener('click', () => {
-  chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+// The browser owns the shortcut editor; an extension cannot rebind keys itself,
+// and a plain link to a browser-internal URL is blocked, so open it as a tab.
+// Opera and Edge run Chrome extensions but keep that page on their own scheme.
+function shortcutsUrl() {
+  const ua = navigator.userAgent;
+  if (ua.includes('OPR/')) return 'opera://extensions/shortcuts';
+  if (ua.includes('Edg/')) return 'edge://extensions/shortcuts';
+  return 'chrome://extensions/shortcuts';
+}
+
+document.getElementById('shortcuts').addEventListener('click', async () => {
+  const url = shortcutsUrl();
+  try {
+    await chrome.tabs.create({ url });
+  } catch {
+    // Some builds refuse to open their settings pages from an extension.
+    toast(`Open ${url} to change the shortcuts`);
+  }
 });
 
 document.getElementById('export-all').addEventListener('click', async () => {
@@ -622,9 +660,10 @@ function toast(text, { undo } = {}) {
     : null;
   toastEl.hidden = false;
   clearTimeout(toastTimer);
+  // The toast only hides itself. Discarding the undo batch here would dim the
+  // Undo button the moment the toast faded, which defeats having the button.
   toastTimer = setTimeout(() => {
     toastEl.hidden = true;
-    if (undo) commitPendingUndo();
   }, undo ? 6000 : 2500);
 }
 

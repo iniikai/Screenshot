@@ -183,20 +183,24 @@ kbd {
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
+/* The checkbox sits beside the title rather than over the thumbnail — floating
+   on the image it covered whatever was in the page's top-left corner, which
+   made captures look truncated. */
+.card-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
 .card-check {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
   cursor: pointer;
   line-height: 0;
 }
 .card-check input {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   cursor: pointer;
 }
 
@@ -232,6 +236,8 @@ kbd {
   padding: 10px 12px 4px;
 }
 .card-title {
+  flex: 1;
+  min-width: 0;
   font-weight: 600;
   font-size: 13px;
   white-space: nowrap;

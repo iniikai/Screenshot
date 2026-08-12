@@ -77,11 +77,26 @@ body {
 .mode-btn:hover { background: var(--surface-hover); }
 
 .hint {
-  margin: 8px 0;
-  text-align: center;
+  margin: 10px 0 4px;
   color: var(--muted);
   font-size: 11px;
 }
+.hint[hidden] { display: none; }
+.hint-heading {
+  margin-bottom: 5px;
+  color: var(--faint, var(--muted));
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.hint-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 0;
+}
+.hint-row kbd { flex: none; }
 kbd {
   padding: 1px 4px;
   border: 1px solid var(--border);
