@@ -1,4 +1,5 @@
 import { getShot, updateShot, addShot, notifyShotsChanged } from './db.js';
+import { FORMATS, getSettings } from './settings.js';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -132,7 +133,9 @@ document.getElementById('undo').addEventListener('click', () => {
 
 async function annotatedBlob() {
   redraw();
-  return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+  const { format, quality } = await getSettings();
+  const chosen = FORMATS[format] || FORMATS.png;
+  return new Promise((resolve) => canvas.toBlob(resolve, chosen.mime, quality));
 }
 
 document.getElementById('save-over').addEventListener('click', async () => {

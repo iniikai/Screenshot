@@ -17,19 +17,41 @@
           title="View Screenshot Stash on the Chrome Web Store — handy if you want to share it"
         >📸 Screenshot Stash</a>
       </h1>
-      <input id="search" class="search" type="search" placeholder="Search title, URL or #tag…">
+      <input id="search" class="search" type="search" placeholder="Search title, note, URL or #tag…">
       <select id="site-filter" class="select" title="Filter by site">
         <option value="">All sites</option>
       </select>
       <span id="storage-meter" class="storage-meter" title="Total space used by your library"></span>
-      <button id="export-all" class="btn" title="Download the whole library as one zip">⬇ Export all</button>
-      <button id="shortcuts" class="btn" title="Set your own keyboard shortcuts for the three capture modes">⌨ Shortcuts</button>
-      <select id="auto-clean" class="select" title="Automatically delete old screenshots (runs locally)">
-        <option value="0">Keep forever</option>
-        <option value="7">Auto-delete after 7 days</option>
-        <option value="30">Auto-delete after 30 days</option>
-        <option value="90">Auto-delete after 90 days</option>
-      </select>
+      <button id="features" class="btn" title="What this extension can do">✨ Features</button>
+      <div class="menu-wrap">
+        <button id="settings-toggle" class="btn" aria-expanded="false" title="Settings and export">⚙ Settings</button>
+        <div id="settings-menu" class="menu" hidden>
+          <label class="menu-field">
+            <span>Save screenshots as</span>
+            <select id="format" class="select"></select>
+          </label>
+          <p class="menu-note" id="format-note"></p>
+
+          <label class="menu-field">
+            <span>Clean up automatically</span>
+            <select id="auto-clean" class="select">
+              <option value="0">Keep forever</option>
+              <option value="7">Delete after 7 days</option>
+              <option value="30">Delete after 30 days</option>
+              <option value="90">Delete after 90 days</option>
+            </select>
+          </label>
+
+          <label class="menu-check">
+            <input type="checkbox" id="auto-copy">
+            <span>Copy to clipboard after capturing the visible tab</span>
+          </label>
+
+          <hr class="menu-sep">
+          <button id="export-all" class="menu-item">⬇ Export whole library as zip</button>
+          <button id="shortcuts" class="menu-item">⌨ Change keyboard shortcuts</button>
+        </div>
+      </div>
     </div>
     <div class="topbar-row">
       <label class="select-all-label">
@@ -37,8 +59,10 @@
       </label>
       <span id="selection-count" class="selection-count"></span>
       <button id="compare" class="btn" disabled title="Select exactly two screenshots to compare">⇔ Compare</button>
+      <button id="bulk-rename" class="btn" disabled title="Give them all one name, numbered">✎ Rename selected</button>
       <button id="bulk-download" class="btn" disabled>⬇ Download selected</button>
       <button id="bulk-delete" class="btn btn-danger" disabled>🗑 Delete selected</button>
+      <span class="keyhint">Arrow keys to move · <kbd>Space</kbd> preview · <kbd>Delete</kbd> remove</span>
     </div>
   </header>
 
@@ -73,22 +97,24 @@
   </footer>
 
   <template id="card-template">
-    <div class="card">
+    <div class="card" tabindex="-1">
       <label class="card-check">
         <input type="checkbox" class="select-box">
       </label>
       <span class="kind-badge" hidden></span>
       <span class="dup-badge" hidden title="Looks nearly identical to another screenshot">≈ duplicate</span>
-      <img class="thumb" alt="Screenshot">
+      <img class="thumb" alt="Screenshot" draggable="true" title="Click to preview · drag into another app">
       <div class="card-body">
         <div class="card-title"></div>
+        <div class="card-note" hidden></div>
         <div class="card-meta"></div>
         <div class="card-tags"></div>
       </div>
       <div class="card-actions">
         <button class="btn btn-sm act-copy" title="Copy image to clipboard">📋</button>
-        <button class="btn btn-sm act-download" title="Download PNG">⬇</button>
+        <button class="btn btn-sm act-download" title="Download">⬇</button>
         <button class="btn btn-sm act-edit" title="Annotate: draw, arrows, blur">✏️</button>
+        <button class="btn btn-sm act-rename" title="Rename or add a note">✎</button>
         <button class="btn btn-sm act-tag" title="Add a tag">🏷</button>
         <button class="btn btn-sm btn-danger act-delete" title="Delete (undo available)">🗑</button>
       </div>
@@ -99,6 +125,52 @@
     <div class="compare-pane"><img id="compare-a" alt="First screenshot"></div>
     <div class="compare-pane"><img id="compare-b" alt="Second screenshot"></div>
     <button id="compare-close" class="compare-close">✕ Close</button>
+  </div>
+
+  <div id="dialog-backdrop" class="dialog-backdrop" hidden>
+    <form id="dialog" class="dialog">
+      <h2 id="dialog-title"></h2>
+      <label class="dialog-field">
+        <span id="dialog-label-1"></span>
+        <input id="dialog-input-1" class="dialog-input" autocomplete="off">
+      </label>
+      <label class="dialog-field" id="dialog-field-2">
+        <span id="dialog-label-2"></span>
+        <input id="dialog-input-2" class="dialog-input" autocomplete="off">
+      </label>
+      <p class="dialog-hint" id="dialog-hint"></p>
+      <div class="dialog-actions">
+        <button type="button" id="dialog-cancel" class="btn">Cancel</button>
+        <button type="submit" id="dialog-ok" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="features-backdrop" class="dialog-backdrop" hidden>
+    <div class="dialog dialog-wide">
+      <h2>What you can do</h2>
+      <ul class="feature-list">
+        <li><b>Capture three ways</b> — visible tab, the whole scrolling page, or drag to select a region.</li>
+        <li><b>Keyboard shortcuts</b> for all three, remappable to whatever you like.</li>
+        <li><b>Collect everything</b> in one library instead of scattering files in Downloads.</li>
+        <li><b>Search</b> across titles, notes, URLs and tags. <b>Filter</b> by site.</li>
+        <li><b>Rename and add notes</b>, one at a time or a whole batch at once.</li>
+        <li><b>Tag</b> screenshots to group them however you think.</li>
+        <li><b>Annotate</b> — pen, arrows, boxes, and blur to hide anything private.</li>
+        <li><b>Compare</b> any two side by side.</li>
+        <li><b>Duplicate detection</b> flags near-identical captures.</li>
+        <li><b>Bulk select</b>, then rename, download or delete in one go.</li>
+        <li><b>Export</b> the whole library as a single zip.</li>
+        <li><b>Drag a screenshot</b> straight out into Slack, Figma or an email.</li>
+        <li><b>Pick your format</b> — PNG, WebP or JPEG, to trade quality against space.</li>
+        <li><b>Undo deletes</b> for six seconds. <b>Auto-delete</b> old ones if you want.</li>
+        <li><b>Dark mode</b>, following your system.</li>
+        <li><b>Stays on your device</b> — no account, no cloud, no tracking, no network requests.</li>
+      </ul>
+      <div class="dialog-actions">
+        <button type="button" id="features-close" class="btn btn-primary">Close</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="library.js"></script>

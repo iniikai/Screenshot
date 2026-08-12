@@ -4,6 +4,7 @@
 // broad host permissions are needed.
 
 import { addShot, getAllShots, notifyShotsChanged } from './db.js';
+import { FORMATS, getSettings } from './settings.js';
 
 const CAPTURE_DELAY_MS = 600; // captureVisibleTab is rate-limited to ~2/sec
 const MAX_FULL_PAGE_SEGMENTS = 20;
@@ -59,7 +60,14 @@ export function hammingDistance(a, b) {
 async function saveBitmapAsShot(bitmap, tab, kind) {
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
   canvas.getContext('2d').drawImage(bitmap, 0, 0);
-  const blob = await canvas.convertToBlob({ type: 'image/png' });
+
+  // A tall full-page PNG runs to tens of megabytes; WebP and JPEG cut that by
+  // roughly an order of magnitude on photo-heavy pages.
+  const { format, quality } = await getSettings();
+  const chosen = FORMATS[format] || FORMATS.png;
+  const blob = await canvas.convertToBlob(
+    chosen.mime === 'image/png' ? { type: 'image/png' } : { type: chosen.mime, quality },
+  );
   const hash = await averageHash(bitmap);
   const id = await addShot({
     blob,

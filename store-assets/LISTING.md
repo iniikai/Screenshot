@@ -18,52 +18,42 @@ Productivity → Workflow & Planning
 
 ## Description
 
-Most screenshot extensions want an account, upload your captures to someone
-else's server, or scatter PNGs across your Downloads folder with filenames you
-can't search. Screenshot Stash does none of that.
+I created this extension for my own sanity, and maybe you'd like it too.
 
-Every screenshot stays on your device, in a library you can actually work with.
-No account. No sign-in. No servers. No analytics. The extension makes zero
-network requests — and the full source code is public so you can verify that
-claim yourself instead of taking my word for it.
+You can take multiple small or full-page screenshots and bulk edit, rename or
+download them later. Hey designers and front-end engineers!
 
-THREE WAYS TO CAPTURE
-• Visible area — one click for what's on screen right now
-• Full page — scrolls and stitches the entire page, hiding sticky headers so
-  they don't repeat down the image
-• Region — drag to select any part of the page
+It only keeps the files on your device, and the code is public — you can read
+every line and decide for yourself whether you want it near your work.
 
-A REAL LIBRARY, NOT A DUMPING GROUND
-• Search across page titles, URLs and your own tags
-• Filter by site
-• Tag screenshots to group them however you think
-• Duplicate detection flags near-identical captures automatically
-• Compare any two screenshots side by side
-• Bulk select, then copy, download or delete in one action
-• Export everything as a single ZIP
-• Instant delete with a 6-second undo — no confirmation dialogs
+WHAT YOU CAN DO
+• Capture three ways — the visible tab, the whole scrolling page, or drag to
+  select a region
+• Keyboard shortcut for each, remappable to whatever you like
+• Everything lands in one library instead of scattering across Downloads
+• Search by title, note, URL or tag, and filter by site
+• Rename and add notes — one at a time, or a whole batch at once
+• Annotate: pen, arrows, boxes, and blur to hide anything private
+• Compare any two side by side
+• Duplicate detection flags near-identical captures
+• Bulk select, then rename, download or delete in one action
+• Export the whole library as a single zip
+• Drag a screenshot straight into Slack, Figma or an email
+• Choose PNG, WebP or JPEG to trade quality against disk space
+• Six seconds of undo on every delete, and optional auto-cleanup
+• Dark mode, following your system
 
-ANNOTATE BEFORE YOU SHARE
-Draw with a pen, add arrows and boxes, and pixelate anything sensitive with the
-blur tool. Save over the original or keep it as a copy.
-
-BUILT FOR PRIVACY
+WHY IT STAYS ON YOUR DEVICE
 Screenshots are stored in IndexedDB, in your browser, on your computer. They
-are never uploaded anywhere. Deleting a screenshot destroys it permanently;
-uninstalling the extension removes every trace. The only way anything leaves
-your device is when you explicitly copy, download or export it.
+are never uploaded anywhere. There is no account, no sign-in, no server, no
+analytics, no tracking. The extension makes zero network requests.
 
-The extension requests no host permissions and cannot read the pages you visit.
-It only captures the tab you are looking at, at the moment you ask it to.
+Deleting a screenshot destroys it permanently. Uninstalling removes every
+trace. The only way anything leaves your device is when you explicitly copy,
+download or export it.
 
-ALSO
-• Dark mode, following your system theme
-• A keyboard shortcut for each capture mode — Alt+Shift+S for the visible tab,
-  Alt+Shift+F for the full page, Alt+Shift+R to select a region. All three are
-  remappable to whatever you prefer.
-• Optional auto-delete of screenshots older than 7, 30 or 90 days — off by
-  default, and it runs locally
-• Storage meter so you always know how much space the library is using
+It requests no host permissions and cannot read the pages you visit. It only
+captures the tab you are looking at, at the moment you ask it to.
 
 Source code and privacy policy: https://github.com/iniikai/Screenshot
 
