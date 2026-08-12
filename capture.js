@@ -86,27 +86,74 @@ export async function captureActiveTab(fromTab) {
 // ---------- full-page capture: scroll, capture each segment, stitch ----------
 
 function pageMetrics() {
-  return {
-    scrollHeight: Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0),
-    viewportHeight: window.innerHeight,
-    originalY: window.scrollY,
-    dpr: window.devicePixelRatio,
-  };
-}
+  const docHeight = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
 
-function scrollAndPin(y, hideFixed) {
-  if (hideFixed) {
-    // Fixed/sticky headers would repeat in every stitched segment — hide them
-    // after the first one. Marked so they can be restored afterwards.
+  // Most web apps lock the document to the viewport and scroll an inner panel
+  // instead, which makes the page look exactly one screen tall. When that
+  // happens, find the biggest thing that actually scrolls and drive that.
+  let scroller = null;
+  if (docHeight <= window.innerHeight + 1) {
+    let bestArea = 0;
     for (const el of document.querySelectorAll('*')) {
-      const pos = getComputedStyle(el).position;
-      if ((pos === 'fixed' || pos === 'sticky') && !el.dataset.stashHidden) {
-        el.dataset.stashHidden = '1';
-        el.style.visibility = 'hidden';
+      if (el.scrollHeight <= el.clientHeight + 1) continue;
+      const overflowY = getComputedStyle(el).overflowY;
+      if (overflowY !== 'auto' && overflowY !== 'scroll' && overflowY !== 'overlay') continue;
+      const r = el.getBoundingClientRect();
+      if (r.width * r.height > bestArea) {
+        bestArea = r.width * r.height;
+        scroller = el;
       }
     }
   }
-  window.scrollTo(0, y);
+
+  // Smooth scrolling would animate under the capture and blur the seams.
+  document.documentElement.style.scrollBehavior = 'auto';
+
+  let rect = null;
+  if (scroller) {
+    scroller.dataset.stashScroller = '1';
+    scroller.style.scrollBehavior = 'auto';
+    const r = scroller.getBoundingClientRect();
+    const cs = getComputedStyle(scroller);
+    rect = {
+      x: r.x + (parseFloat(cs.borderLeftWidth) || 0),
+      y: r.y + (parseFloat(cs.borderTopWidth) || 0),
+      width: scroller.clientWidth,
+      height: scroller.clientHeight,
+    };
+  }
+
+  return {
+    scrollHeight: scroller ? scroller.scrollHeight : docHeight,
+    viewportHeight: scroller ? scroller.clientHeight : window.innerHeight,
+    originalY: scroller ? scroller.scrollTop : window.scrollY,
+    innerHeight: window.innerHeight,
+    dpr: window.devicePixelRatio,
+    rect,
+  };
+}
+
+function scrollToOffset(y) {
+  const scroller = document.querySelector('[data-stash-scroller]');
+  if (scroller) scroller.scrollTop = y;
+  else window.scrollTo(0, y);
+}
+
+// Fixed/sticky headers would repeat in every stitched segment, so hide them
+// on every segment after the first. This runs as its own step, well after the
+// scroll: many sites (Google results among them) only pin their header from a
+// scroll handler, and those fire asynchronously — checking any earlier sees
+// the header still unpinned and walks straight past it.
+function hidePinned() {
+  for (const el of document.querySelectorAll('*')) {
+    const pos = getComputedStyle(el).position;
+    if ((pos === 'fixed' || pos === 'sticky') && !el.dataset.stashHidden && !el.dataset.stashScroller) {
+      el.dataset.stashHidden = '1';
+      el.style.visibility = 'hidden';
+    }
+  }
+  // Let the page repaint without them before the capture is taken.
+  return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 }
 
 function unpinAndRestore(y) {
@@ -114,7 +161,15 @@ function unpinAndRestore(y) {
     el.style.visibility = '';
     delete el.dataset.stashHidden;
   }
-  window.scrollTo(0, y);
+  const scroller = document.querySelector('[data-stash-scroller]');
+  if (scroller) {
+    scroller.scrollTop = y;
+    scroller.style.scrollBehavior = '';
+    delete scroller.dataset.stashScroller;
+  } else {
+    window.scrollTo(0, y);
+  }
+  document.documentElement.style.scrollBehavior = '';
 }
 
 export async function captureFullPage(fromTab) {
@@ -132,12 +187,33 @@ export async function captureFullPage(fromTab) {
       const y = Math.min(i * m.viewportHeight, m.scrollHeight - m.viewportHeight);
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        func: scrollAndPin,
-        args: [y, i > 0],
+        func: scrollToOffset,
+        args: [y],
       });
+      // Gives lazy-loaded images time to arrive and scroll handlers time to run.
       await sleep(CAPTURE_DELAY_MS);
+      if (i > 0) {
+        await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: hidePinned });
+      }
       const dataUrl = await grabVisible(tab.windowId);
-      bitmaps.push(await createImageBitmap(await (await fetch(dataUrl)).blob()));
+      const shot = await createImageBitmap(await (await fetch(dataUrl)).blob());
+
+      if (m.rect) {
+        // Only the scrolling panel advances between segments; everything around
+        // it would repeat, so keep just the panel.
+        const scale = shot.height / m.innerHeight;
+        const cropped = await createImageBitmap(
+          shot,
+          Math.round(m.rect.x * scale),
+          Math.round(m.rect.y * scale),
+          Math.max(1, Math.round(m.rect.width * scale)),
+          Math.max(1, Math.round(m.rect.height * scale)),
+        );
+        shot.close();
+        bitmaps.push(cropped);
+      } else {
+        bitmaps.push(shot);
+      }
       offsets.push(y);
     }
   } finally {

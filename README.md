@@ -10,6 +10,8 @@ deleting them one at a time or in bulk.
 
 - **Three capture modes**, all from the toolbar popup:
   - **Visible tab** — also available anywhere via **Alt+Shift+S**
+  - Every mode has a shortcut: **Alt+Shift+F** full page, **Alt+Shift+R** region.
+    Rebind them from the **⌨ Shortcuts** button in the library.
   - **Full page** — scrolls through the whole page and stitches one tall screenshot
   - **Select area** — drag a rectangle on the page to capture just that part
 - **Library page** showing every screenshot as a card with its page title, capture time, and

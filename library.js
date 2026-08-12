@@ -298,6 +298,12 @@ document.getElementById('compare-close').addEventListener('click', () => {
   document.getElementById('compare-overlay').hidden = true;
 });
 
+// Chrome owns the shortcut editor; an extension cannot rebind keys itself, and
+// a plain link to a chrome:// URL is blocked, so open it as a tab.
+document.getElementById('shortcuts').addEventListener('click', () => {
+  chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+});
+
 document.getElementById('export-all').addEventListener('click', async () => {
   if (!shots.length) {
     toast('Nothing to export yet');

@@ -8,13 +8,22 @@
 <body>
   <header class="topbar">
     <div class="topbar-row">
-      <h1>📸 Screenshot Stash</h1>
+      <h1>
+        <a
+          class="wordmark"
+          href="https://chromewebstore.google.com/detail/screenshot-stash/lbiaoimckangogbejgbaokmalcdmglkj"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="View Screenshot Stash on the Chrome Web Store — handy if you want to share it"
+        >📸 Screenshot Stash</a>
+      </h1>
       <input id="search" class="search" type="search" placeholder="Search title, URL or #tag…">
       <select id="site-filter" class="select" title="Filter by site">
         <option value="">All sites</option>
       </select>
       <span id="storage-meter" class="storage-meter" title="Total space used by your library"></span>
       <button id="export-all" class="btn" title="Download the whole library as one zip">⬇ Export all</button>
+      <button id="shortcuts" class="btn" title="Set your own keyboard shortcuts for the three capture modes">⌨ Shortcuts</button>
       <select id="auto-clean" class="select" title="Automatically delete old screenshots (runs locally)">
         <option value="0">Keep forever</option>
         <option value="7">Auto-delete after 7 days</option>

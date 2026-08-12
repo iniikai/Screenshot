@@ -58,7 +58,9 @@ It only captures the tab you are looking at, at the moment you ask it to.
 
 ALSO
 • Dark mode, following your system theme
-• Keyboard shortcut (Alt+Shift+S by default, remappable)
+• A keyboard shortcut for each capture mode — Alt+Shift+S for the visible tab,
+  Alt+Shift+F for the full page, Alt+Shift+R to select a region. All three are
+  remappable to whatever you prefer.
 • Optional auto-delete of screenshots older than 7, 30 or 90 days — off by
   default, and it runs locally
 • Storage meter so you always know how much space the library is using

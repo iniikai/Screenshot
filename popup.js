@@ -85,4 +85,27 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === 'shots-changed') refresh();
 });
 
+// Read the live bindings rather than hardcoding the defaults, so the hint stays
+// honest after someone rebinds the keys in chrome://extensions/shortcuts.
+async function showShortcuts() {
+  const labels = {
+    'capture-screenshot': 'this tab',
+    'capture-full-page': 'full page',
+    'capture-area': 'area',
+  };
+  const hint = document.getElementById('shortcut-hint');
+  const bound = (await chrome.commands.getAll()).filter((c) => c.shortcut && labels[c.name]);
+  if (!bound.length) return;
+
+  hint.append('Works anywhere: ');
+  bound.forEach((command, i) => {
+    if (i) hint.append(' · ');
+    const key = document.createElement('kbd');
+    key.textContent = command.shortcut;
+    hint.append(key, ` ${labels[command.name]}`);
+  });
+  hint.hidden = false;
+}
+
 refresh();
+showShortcuts();

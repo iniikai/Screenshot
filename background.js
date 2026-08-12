@@ -25,8 +25,18 @@ async function runCapture(fn, tab) {
   }
 }
 
+// Shortcuts are rebindable by the user at chrome://extensions/shortcuts. No tab
+// is passed here — there is no popup to ask, so the capture resolves the last
+// focused window itself.
+const SHORTCUT_CAPTURES = {
+  'capture-screenshot': captureActiveTab,
+  'capture-full-page': captureFullPage,
+  'capture-area': captureArea,
+};
+
 chrome.commands.onCommand.addListener((command) => {
-  if (command === 'capture-screenshot') runCapture(captureActiveTab);
+  const capture = SHORTCUT_CAPTURES[command];
+  if (capture) runCapture(capture);
 });
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
