@@ -17,12 +17,24 @@ async function runCapture(fn, tab) {
   try {
     const id = await fn(tab);
     if (id !== null) await flashBadge('+1', '#16a34a');
+    await clearLastError();
     return { ok: true, id };
   } catch (err) {
-    console.warn('Capture failed:', err.message);
+    // A bare ✕ tells nobody anything. Put the reason where it can be found:
+    // hovering the toolbar icon, and in the popup the next time it opens.
+    console.warn('Capture failed:', err);
+    await chrome.storage.local.set({
+      lastError: { message: err.message || String(err), at: Date.now() },
+    });
+    await chrome.action.setTitle({ title: `Screenshot Stash — last capture failed: ${err.message}` });
     await flashBadge('✕', '#dc2626');
     return { ok: false, error: err.message };
   }
+}
+
+async function clearLastError() {
+  await chrome.storage.local.remove('lastError');
+  await chrome.action.setTitle({ title: 'Screenshot Stash' });
 }
 
 // Shortcuts are rebindable by the user at chrome://extensions/shortcuts. No tab

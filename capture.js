@@ -8,6 +8,10 @@ import { FORMATS, getSettings } from './settings.js';
 
 const CAPTURE_DELAY_MS = 600; // captureVisibleTab is rate-limited to ~2/sec
 const MAX_FULL_PAGE_SEGMENTS = 20;
+// Chrome refuses to allocate a canvas taller than 32,767px. On a Retina screen
+// a full-height viewport is ~1,700 device px, so twenty segments overshoot that
+// and the stitch throws — which is how an endless feed turns into a red ✕.
+const MAX_CANVAS_HEIGHT = 32000;
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -217,7 +221,13 @@ export async function captureFullPage(fromTab) {
     func: pageMetrics,
   });
 
-  const segments = Math.min(Math.ceil(m.scrollHeight / m.viewportHeight), MAX_FULL_PAGE_SEGMENTS);
+  const deviceSegmentHeight = m.viewportHeight * (m.dpr || 1);
+  const fitsInCanvas = Math.max(1, Math.floor(MAX_CANVAS_HEIGHT / deviceSegmentHeight));
+  const segments = Math.min(
+    Math.ceil(m.scrollHeight / m.viewportHeight),
+    MAX_FULL_PAGE_SEGMENTS,
+    fitsInCanvas,
+  );
   const bitmaps = [];
   const offsets = [];
   let lastY = -1;

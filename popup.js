@@ -139,5 +139,18 @@ async function showShortcuts() {
   hint.hidden = false;
 }
 
+// Surface why a background capture failed — the badge flashes ✕ and is gone
+// before anyone can read it.
+async function showLastError() {
+  const { lastError } = await chrome.storage.local.get('lastError');
+  if (!lastError) return;
+  if (Date.now() - lastError.at > 10 * 60 * 1000) {
+    await chrome.storage.local.remove('lastError');
+    return;
+  }
+  showStatus(lastError.message, 'err');
+}
+
 refresh();
 showShortcuts();
+showLastError();
