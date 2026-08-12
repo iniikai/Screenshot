@@ -54,6 +54,19 @@ async function averageHash(bitmap) {
   return gray.map((v) => (v > avg ? '1' : '0')).join('');
 }
 
+// Chrome refuses to let any extension read these, no matter what it requests.
+// Worth detecting up front, because the raw browser error blames the manifest
+// and reads like the extension is broken.
+export function pageBlockReason(url = '') {
+  if (/^(chrome|edge|opera|brave|about|devtools|view-source|chrome-extension|moz-extension|chrome-search|chrome-untrusted):/i.test(url)) {
+    return 'Chrome does not allow capturing browser or extension pages — including this one.';
+  }
+  if (/^https?:\/\/(chromewebstore\.google\.com|chrome\.google\.com\/webstore)/i.test(url)) {
+    return 'Chrome does not allow capturing the Web Store.';
+  }
+  return null;
+}
+
 export function hammingDistance(a, b) {
   if (!a || !b || a.length !== b.length) return Infinity;
   let d = 0;

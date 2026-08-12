@@ -1,4 +1,4 @@
-import { captureActiveTab, captureFullPage, captureArea } from './capture.js';
+import { captureActiveTab, captureFullPage, captureArea, pageBlockReason } from './capture.js';
 import { countShots, deleteOlderThan, notifyShotsChanged } from './db.js';
 
 async function refreshBadge() {
@@ -23,13 +23,27 @@ async function runCapture(fn, tab) {
     // A bare ✕ tells nobody anything. Put the reason where it can be found:
     // hovering the toolbar icon, and in the popup the next time it opens.
     console.warn('Capture failed:', err);
-    await chrome.storage.local.set({
-      lastError: { message: err.message || String(err), at: Date.now() },
-    });
-    await chrome.action.setTitle({ title: `Screenshot Stash — last capture failed: ${err.message}` });
+    const message = explain(err, tab?.url);
+    await chrome.storage.local.set({ lastError: { message, at: Date.now() } });
+    await chrome.action.setTitle({ title: `Screenshot Stash — ${message}` });
     await flashBadge('✕', '#dc2626');
     return { ok: false, error: err.message };
   }
+}
+
+// Chrome's own wording for a blocked page blames the manifest, which sends
+// people looking for a bug that is not there.
+function explain(err, url) {
+  const raw = err?.message || String(err);
+  const blocked = pageBlockReason(url);
+  if (blocked) return blocked;
+  if (/Cannot access contents|must request permission|activeTab/i.test(raw)) {
+    return 'Chrome would not let the extension read this page. Browser pages, extension pages and the Web Store are always off limits.';
+  }
+  if (/quota|MAX_CAPTURE/i.test(raw)) {
+    return 'Chrome rate-limited the capture. Wait a moment and try again.';
+  }
+  return raw;
 }
 
 async function clearLastError() {

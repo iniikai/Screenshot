@@ -1,4 +1,4 @@
-import { captureActiveTab } from './capture.js';
+import { captureActiveTab, pageBlockReason } from './capture.js';
 import { getAllShots, countShots, getShot } from './db.js';
 import { getSettings } from './settings.js';
 
@@ -151,6 +151,31 @@ async function showLastError() {
   showStatus(lastError.message, 'err');
 }
 
+// Say it up front rather than letting the click fail. A URL check alone cannot
+// do this: Chrome hides tab.url for exactly the pages that are blocked, so the
+// only reliable test is to try touching the page and see if it refuses. The
+// probe returns nothing and changes nothing.
+async function checkPageIsCapturable() {
+  const tab = await currentTab();
+  let reason = pageBlockReason(tab?.url || '');
+  if (!reason) {
+    if (!tab?.id) return false;
+    try {
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: () => true });
+      return false;
+    } catch {
+      reason = 'Chrome does not allow capturing browser or extension pages — including this one.';
+    }
+  }
+  captureBtn.disabled = true;
+  document.getElementById('capture-full').disabled = true;
+  document.getElementById('capture-area').disabled = true;
+  showStatus(`${reason} Open a normal website and try again.`, 'err');
+  return true;
+}
+
 refresh();
 showShortcuts();
-showLastError();
+checkPageIsCapturable().then((blocked) => {
+  if (!blocked) showLastError();
+});
