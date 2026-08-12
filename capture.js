@@ -228,8 +228,13 @@ export async function captureFullPage(fromTab) {
     MAX_FULL_PAGE_SEGMENTS,
     fitsInCanvas,
   );
-  const bitmaps = [];
-  const offsets = [];
+  // Each segment is drawn into the canvas and released straight away. Holding
+  // all twenty as bitmaps meant peak memory of twenty full-viewport images at
+  // once, which is where a long feed on a modest machine runs out of room.
+  let canvas = null;
+  let g = null;
+  let scale = 1;
+  let filledTo = 0;
   let lastY = -1;
   try {
     for (let i = 0; i < segments; i++) {
@@ -255,23 +260,31 @@ export async function captureFullPage(fromTab) {
       const dataUrl = await grabVisible(tab.windowId);
       const shot = await createImageBitmap(await (await fetch(dataUrl)).blob());
 
+      let piece = shot;
       if (m.rect) {
         // Only the scrolling panel advances between segments; everything around
         // it would repeat, so keep just the panel.
-        const scale = shot.height / m.innerHeight;
-        const cropped = await createImageBitmap(
+        const deviceScale = shot.height / m.innerHeight;
+        piece = await createImageBitmap(
           shot,
-          Math.round(m.rect.x * scale),
-          Math.round(m.rect.y * scale),
-          Math.max(1, Math.round(m.rect.width * scale)),
-          Math.max(1, Math.round(m.rect.height * scale)),
+          Math.round(m.rect.x * deviceScale),
+          Math.round(m.rect.y * deviceScale),
+          Math.max(1, Math.round(m.rect.width * deviceScale)),
+          Math.max(1, Math.round(m.rect.height * deviceScale)),
         );
         shot.close();
-        bitmaps.push(cropped);
-      } else {
-        bitmaps.push(shot);
       }
-      offsets.push(y);
+
+      if (!canvas) {
+        scale = piece.height / m.viewportHeight; // actual device pixel ratio
+        const planned = Math.round(Math.min(m.scrollHeight, segments * m.viewportHeight) * scale);
+        canvas = new OffscreenCanvas(piece.width, Math.min(planned, MAX_CANVAS_HEIGHT));
+        g = canvas.getContext('2d');
+      }
+      const top = Math.round(y * scale);
+      g.drawImage(piece, 0, top);
+      filledTo = Math.max(filledTo, Math.min(top + piece.height, canvas.height));
+      piece.close();
     }
   } finally {
     await chrome.scripting.executeScript({
@@ -281,18 +294,11 @@ export async function captureFullPage(fromTab) {
     }).catch(() => {});
   }
 
-  const scale = bitmaps[0].height / m.viewportHeight; // device pixel ratio
-  // Measured from what was actually captured, not from the segments planned —
-  // the loop stops early when the page runs out of scroll, and the difference
-  // would otherwise be blank space at the bottom.
-  const reached = offsets[offsets.length - 1] + m.viewportHeight;
-  const totalHeight = Math.round(Math.min(m.scrollHeight, reached) * scale);
-  const canvas = new OffscreenCanvas(bitmaps[0].width, totalHeight);
-  const g = canvas.getContext('2d');
-  bitmaps.forEach((bmp, i) => g.drawImage(bmp, 0, Math.round(offsets[i] * scale)));
-  bitmaps.forEach((bmp) => bmp.close());
+  if (!canvas) throw new Error('Nothing could be captured from this page.');
 
-  const stitched = await createImageBitmap(canvas);
+  // Trim to what was actually drawn. The loop stops early when the page runs
+  // out of scroll, and the remainder would otherwise be blank.
+  const stitched = await createImageBitmap(canvas, 0, 0, canvas.width, filledTo || canvas.height);
   return saveBitmapAsShot(stitched, tab, 'fullpage');
 }
 
