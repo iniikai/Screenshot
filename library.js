@@ -457,8 +457,10 @@ featuresBackdrop.addEventListener('click', (e) => {
 
 // ---------- filters & settings ----------
 
-searchInput.addEventListener('input', () => render());
-siteFilter.addEventListener('change', () => render());
+// Reset the arrow-key position: after filtering, the old index points at a
+// different screenshot than the one that looked focused.
+searchInput.addEventListener('input', () => { focusedIndex = -1; render(); });
+siteFilter.addEventListener('change', () => { focusedIndex = -1; render(); });
 
 autoCleanSelect.addEventListener('change', async () => {
   const days = Number(autoCleanSelect.value);
@@ -513,8 +515,14 @@ function columnCount() {
 
 document.addEventListener('keydown', (e) => {
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
-  const dialogOpen = !document.getElementById('dialog-backdrop').hidden;
-  if (typing || dialogOpen || e.metaKey || e.ctrlKey || e.altKey) return;
+  // A preview or a dialog owns the keyboard while it is up. Without this, Space
+  // opens a second preview stacked on the first, and the orphan then swallows
+  // every click on the page.
+  const overlayOpen = document.querySelector('.lightbox')
+    || !document.getElementById('dialog-backdrop').hidden
+    || !document.getElementById('features-backdrop').hidden
+    || !document.getElementById('compare-overlay').hidden;
+  if (typing || overlayOpen || e.metaKey || e.ctrlKey || e.altKey) return;
   if (!visible.length) return;
 
   const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: columnCount(), ArrowUp: -columnCount() }[e.key];
@@ -621,6 +629,7 @@ function toast(text, { undo } = {}) {
 }
 
 function openLightbox(url) {
+  if (document.querySelector('.lightbox')) return; // never stack previews
   const overlay = document.createElement('div');
   overlay.className = 'lightbox';
   const img = document.createElement('img');
