@@ -40,7 +40,8 @@ WHAT YOU CAN DO
 • Export the whole library as a single zip
 • Drag a screenshot straight into Slack, Figma or an email
 • Choose PNG, WebP or JPEG to trade quality against disk space
-• Six seconds of undo on every delete, and optional auto-cleanup
+• Undo any delete — a button in the toolbar, not just a toast you might miss
+• Optional auto-cleanup of screenshots older than 7, 30 or 90 days
 • Dark mode, following your system
 
 WHY IT STAYS ON YOUR DEVICE
@@ -54,6 +55,11 @@ download or export it.
 
 It requests no host permissions and cannot read the pages you visit. It only
 captures the tab you are looking at, at the moment you ask it to.
+
+GOOD TO KNOW
+Chrome does not let any extension capture its own pages — settings, the
+extensions tab, the Web Store. That is a browser rule, not a limitation of
+this extension. Everywhere else works.
 
 Source code and privacy policy: https://github.com/iniikai/Screenshot
 
