@@ -8,19 +8,28 @@ deleting them one at a time or in bulk.
 
 ## Features
 
-- **Three capture modes**, all from the toolbar popup:
-  - **Visible tab** — also available anywhere via **Alt+Shift+S**
-  - **Full page** — scrolls through the whole page and stitches one tall screenshot
-  - **Select area** — drag a rectangle on the page to capture just that part
-- **Library page** showing every screenshot as a card with its page title, capture time, and
-  dimensions. Click a thumbnail for a full-size preview.
-- **Search & filter** by title, URL, `#tag`, or site.
-- **Per-screenshot actions**: copy to clipboard, download as PNG, annotate, tag, or delete —
-  with a 6-second **Undo** after every delete.
-- **Annotate** screenshots with pen, arrows, boxes, and pixelated blur (hide sensitive info),
-  then save over the original or as a copy.
-- **Bulk actions**: select with checkboxes (or **Select all**), then download or delete the whole
-  selection at once. Select exactly two to **compare side by side**.
+- **Three capture modes**, from the toolbar popup or a keyboard shortcut:
+  - **Visible tab** — `Alt+Shift+S`
+  - **Full page** — `Alt+Shift+F`; scrolls the page and stitches one tall screenshot, and
+    handles apps that scroll an inner panel rather than the document
+  - **Select area** — `Alt+Shift+R`; drag a rectangle to capture just that part
+  - All three are remappable from the **⌨ Shortcuts** button in the library.
+- **Library page** showing every screenshot as a card with its title, note, capture time,
+  dimensions and format. Click a thumbnail for a full-size preview.
+- **Search & filter** by title, note, URL, `#tag`, or site.
+- **Rename and annotate notes**, one at a time or across a whole selection — bulk rename numbers
+  them for you, so `work` becomes `work_1`, `work_2`, `work_3`.
+- **Per-screenshot actions**: copy, download, annotate, rename, tag, or delete — with a 6-second
+  **Undo** after every delete.
+- **Annotate** with pen, arrows, boxes, and pixelated blur to hide sensitive information, then
+  save over the original or as a copy.
+- **Bulk actions**: select with checkboxes (or **Select all**), then rename, download or delete
+  the whole selection. Select exactly two to **compare side by side**.
+- **Keyboard navigation** — arrow keys move between screenshots, <kbd>Space</kbd> previews,
+  <kbd>Delete</kbd> removes, <kbd>Enter</kbd> toggles selection.
+- **Drag a screenshot out** of the library straight into Slack, Figma, or an email.
+- **Choose your format** — PNG, WebP or JPEG. A tall full-page PNG can run to tens of megabytes;
+  WebP is roughly ten times smaller on photo-heavy pages.
 - **Export all** — download the entire library as a single zip.
 - **Duplicate detection** — near-identical captures get a "≈ duplicate" badge.
 - **Storage meter** and optional **auto-delete** of screenshots older than 7/30/90 days
@@ -66,6 +75,7 @@ See [PRIVACY.md](PRIVACY.md) for the full policy.
 | `background.js`            | Service worker: shortcut, badge, long captures, cleanup  |
 | `capture.js`               | Visible / full-page / area capture + duplicate hashing   |
 | `db.js`                    | IndexedDB storage layer                                  |
+| `settings.js`              | Shared user settings: format, quality, cleanup, auto-copy|
 | `zipper.js`                | Minimal ZIP writer for Export all                        |
 | `popup.html/css/js`        | Toolbar popup: capture buttons, recent thumbnails        |
 | `library.html/css/js`      | Library: review, search, tags, bulk actions, compare     |

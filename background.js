@@ -1,4 +1,4 @@
-import { captureActiveTab, captureFullPage, captureArea } from './capture.js';
+import { captureActiveTab, captureFullPage, captureArea, pageBlockReason } from './capture.js';
 import { countShots, deleteOlderThan, notifyShotsChanged } from './db.js';
 
 async function refreshBadge() {
@@ -17,16 +17,52 @@ async function runCapture(fn, tab) {
   try {
     const id = await fn(tab);
     if (id !== null) await flashBadge('+1', '#16a34a');
+    await clearLastError();
     return { ok: true, id };
   } catch (err) {
-    console.warn('Capture failed:', err.message);
+    // A bare ✕ tells nobody anything. Put the reason where it can be found:
+    // hovering the toolbar icon, and in the popup the next time it opens.
+    console.warn('Capture failed:', err);
+    const message = explain(err, tab?.url);
+    await chrome.storage.local.set({ lastError: { message, at: Date.now() } });
+    await chrome.action.setTitle({ title: `Screenshot Stash — ${message}` });
     await flashBadge('✕', '#dc2626');
     return { ok: false, error: err.message };
   }
 }
 
+// Chrome's own wording for a blocked page blames the manifest, which sends
+// people looking for a bug that is not there.
+function explain(err, url) {
+  const raw = err?.message || String(err);
+  const blocked = pageBlockReason(url);
+  if (blocked) return blocked;
+  if (/Cannot access contents|must request permission|activeTab/i.test(raw)) {
+    return 'Chrome would not let the extension read this page. Browser pages, extension pages and the Web Store are always off limits.';
+  }
+  if (/quota|MAX_CAPTURE/i.test(raw)) {
+    return 'Chrome rate-limited the capture. Wait a moment and try again.';
+  }
+  return raw;
+}
+
+async function clearLastError() {
+  await chrome.storage.local.remove('lastError');
+  await chrome.action.setTitle({ title: 'Screenshot Stash' });
+}
+
+// Shortcuts are rebindable by the user at chrome://extensions/shortcuts. No tab
+// is passed here — there is no popup to ask, so the capture resolves the last
+// focused window itself.
+const SHORTCUT_CAPTURES = {
+  'capture-screenshot': captureActiveTab,
+  'capture-full-page': captureFullPage,
+  'capture-area': captureArea,
+};
+
 chrome.commands.onCommand.addListener((command) => {
-  if (command === 'capture-screenshot') runCapture(captureActiveTab);
+  const capture = SHORTCUT_CAPTURES[command];
+  if (capture) runCapture(capture);
 });
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {

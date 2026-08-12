@@ -1,9 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Screenshot Stash — Full Page Screen Capture & Library",
-  "version": "1.0.1",
-  "description": "Screenshot tool with a private local library: capture full page, visible area or region, then annotate, copy or bulk-delete.",
-  "permissions": ["activeTab", "downloads", "scripting", "alarms", "storage"],
+  "name": "Screenshot Stash — Multi Screenshot & Full Page Capture",
+  "version": "1.1.4",
+  "description": "Take multiple screenshots into a private local library: full page, visible tab or region. Annotate, copy, download or bulk-delete.",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "scripting",
+    "alarms",
+    "storage"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
@@ -29,7 +35,19 @@
       "suggested_key": {
         "default": "Alt+Shift+S"
       },
-      "description": "Capture a screenshot of the current tab"
+      "description": "Capture the visible part of this tab"
+    },
+    "capture-full-page": {
+      "suggested_key": {
+        "default": "Alt+Shift+F"
+      },
+      "description": "Capture the whole scrolling page"
+    },
+    "capture-area": {
+      "suggested_key": {
+        "default": "Alt+Shift+R"
+      },
+      "description": "Select an area to capture"
     }
   }
 }

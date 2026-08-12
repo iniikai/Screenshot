@@ -68,6 +68,17 @@ body {
   font-size: 18px;
   white-space: nowrap;
 }
+/* The wordmark links out to the store listing, for sharing. It should read as
+   the title first and a link second, so the underline waits for hover. */
+.wordmark {
+  color: inherit;
+  text-decoration: none;
+}
+.wordmark:hover,
+.wordmark:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .search {
   flex: 1;
@@ -154,7 +165,7 @@ kbd {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
 }
 
@@ -172,20 +183,24 @@ kbd {
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
+/* The checkbox sits beside the title rather than over the thumbnail — floating
+   on the image it covered whatever was in the page's top-left corner, which
+   made captures look truncated. */
+.card-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
 .card-check {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
   cursor: pointer;
   line-height: 0;
 }
 .card-check input {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   cursor: pointer;
 }
 
@@ -221,12 +236,29 @@ kbd {
   padding: 10px 12px 4px;
 }
 .card-title {
+  flex: 1;
+  min-width: 0;
   font-weight: 600;
   font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.card:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.card-note {
+  margin-top: 3px;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-note[hidden] { display: none; }
 .card-meta {
   margin-top: 3px;
   font-size: 12px;
@@ -284,6 +316,139 @@ kbd {
   cursor: pointer;
   padding: 0;
 }
+
+/* ---------- settings popover ---------- */
+
+.menu-wrap { position: relative; }
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  width: 320px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+.menu[hidden] { display: none; }
+.menu-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.menu-field .select { width: 100%; }
+.menu-note {
+  margin: -8px 0 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.menu-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.menu-sep {
+  margin: 14px 0 10px;
+  border: none;
+  border-top: 1px solid var(--border-light);
+}
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.menu-item:hover { background: var(--surface-hover); }
+
+.keyhint {
+  margin-left: auto;
+  color: var(--faint);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+/* ---------- dialogs ---------- */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.55);
+}
+.dialog-backdrop[hidden] { display: none; }
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: 22px 24px;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+}
+.dialog-wide { max-width: 560px; max-height: 82vh; overflow-y: auto; }
+.dialog h2 { margin: 0 0 16px; font-size: 17px; }
+.dialog-field {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.dialog-field[hidden] { display: none; }
+.dialog-input {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+}
+.dialog-hint {
+  margin: -6px 0 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.dialog-hint:empty { display: none; }
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--accent); }
+
+.feature-list {
+  margin: 0 0 20px;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.feature-list b { color: var(--text); font-weight: 600; }
 
 .privacy-note {
   padding: 24px 20px 32px;

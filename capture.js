@@ -4,9 +4,14 @@
 // broad host permissions are needed.
 
 import { addShot, getAllShots, notifyShotsChanged } from './db.js';
+import { FORMATS, getSettings } from './settings.js';
 
 const CAPTURE_DELAY_MS = 600; // captureVisibleTab is rate-limited to ~2/sec
 const MAX_FULL_PAGE_SEGMENTS = 20;
+// Chrome refuses to allocate a canvas taller than 32,767px. On a Retina screen
+// a full-height viewport is ~1,700 device px, so twenty segments overshoot that
+// and the stitch throws — which is how an endless feed turns into a red ✕.
+const MAX_CANVAS_HEIGHT = 32000;
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -49,6 +54,19 @@ async function averageHash(bitmap) {
   return gray.map((v) => (v > avg ? '1' : '0')).join('');
 }
 
+// Chrome refuses to let any extension read these, no matter what it requests.
+// Worth detecting up front, because the raw browser error blames the manifest
+// and reads like the extension is broken.
+export function pageBlockReason(url = '') {
+  if (/^(chrome|edge|opera|brave|about|devtools|view-source|chrome-extension|moz-extension|chrome-search|chrome-untrusted):/i.test(url)) {
+    return 'Chrome does not allow capturing browser or extension pages — including this one.';
+  }
+  if (/^https?:\/\/(chromewebstore\.google\.com|chrome\.google\.com\/webstore)/i.test(url)) {
+    return 'Chrome does not allow capturing the Web Store.';
+  }
+  return null;
+}
+
 export function hammingDistance(a, b) {
   if (!a || !b || a.length !== b.length) return Infinity;
   let d = 0;
@@ -59,7 +77,14 @@ export function hammingDistance(a, b) {
 async function saveBitmapAsShot(bitmap, tab, kind) {
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
   canvas.getContext('2d').drawImage(bitmap, 0, 0);
-  const blob = await canvas.convertToBlob({ type: 'image/png' });
+
+  // A tall full-page PNG runs to tens of megabytes; WebP and JPEG cut that by
+  // roughly an order of magnitude on photo-heavy pages.
+  const { format, quality } = await getSettings();
+  const chosen = FORMATS[format] || FORMATS.png;
+  const blob = await canvas.convertToBlob(
+    chosen.mime === 'image/png' ? { type: 'image/png' } : { type: chosen.mime, quality },
+  );
   const hash = await averageHash(bitmap);
   const id = await addShot({
     blob,
@@ -86,27 +111,104 @@ export async function captureActiveTab(fromTab) {
 // ---------- full-page capture: scroll, capture each segment, stitch ----------
 
 function pageMetrics() {
-  return {
-    scrollHeight: Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0),
-    viewportHeight: window.innerHeight,
-    originalY: window.scrollY,
-    dpr: window.devicePixelRatio,
-  };
-}
+  const docHeight = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
 
-function scrollAndPin(y, hideFixed) {
-  if (hideFixed) {
-    // Fixed/sticky headers would repeat in every stitched segment — hide them
-    // after the first one. Marked so they can be restored afterwards.
+  // Most web apps lock the document to the viewport and scroll an inner panel
+  // instead, which makes the page look exactly one screen tall. When that
+  // happens, find the biggest thing that actually scrolls and drive that.
+  let scroller = null;
+  if (docHeight <= window.innerHeight + 1) {
+    let bestArea = 0;
     for (const el of document.querySelectorAll('*')) {
-      const pos = getComputedStyle(el).position;
-      if ((pos === 'fixed' || pos === 'sticky') && !el.dataset.stashHidden) {
-        el.dataset.stashHidden = '1';
-        el.style.visibility = 'hidden';
+      if (el.scrollHeight <= el.clientHeight + 1) continue;
+      const overflowY = getComputedStyle(el).overflowY;
+      if (overflowY !== 'auto' && overflowY !== 'scroll' && overflowY !== 'overlay') continue;
+      const r = el.getBoundingClientRect();
+      if (r.width * r.height > bestArea) {
+        bestArea = r.width * r.height;
+        scroller = el;
       }
     }
   }
+
+  // Smooth scrolling would animate under the capture and blur the seams.
+  document.documentElement.style.scrollBehavior = 'auto';
+
+  let rect = null;
+  if (scroller) {
+    scroller.dataset.stashScroller = '1';
+    scroller.style.scrollBehavior = 'auto';
+    const r = scroller.getBoundingClientRect();
+    const cs = getComputedStyle(scroller);
+    rect = {
+      x: r.x + (parseFloat(cs.borderLeftWidth) || 0),
+      y: r.y + (parseFloat(cs.borderTopWidth) || 0),
+      width: scroller.clientWidth,
+      height: scroller.clientHeight,
+    };
+  }
+
+  return {
+    scrollHeight: scroller ? scroller.scrollHeight : docHeight,
+    viewportHeight: scroller ? scroller.clientHeight : window.innerHeight,
+    originalY: scroller ? scroller.scrollTop : window.scrollY,
+    innerHeight: window.innerHeight,
+    dpr: window.devicePixelRatio,
+    rect,
+  };
+}
+
+// Returns where the page actually landed, which is not always where it was
+// asked to go — infinite feeds move the ground underfoot, and a page that has
+// stopped moving means there is nothing more to capture.
+function scrollToOffset(y) {
+  const scroller = document.querySelector('[data-stash-scroller]');
+  if (scroller) {
+    scroller.scrollTop = y;
+    return scroller.scrollTop;
+  }
   window.scrollTo(0, y);
+  return window.scrollY;
+}
+
+// Feeds hang their images off lazy loading, so a fixed delay either wastes time
+// on simple pages or captures half-loaded ones. Wait for the images actually on
+// screen, with a ceiling so a single stalled request cannot hold up the capture.
+function settleViewport() {
+  const height = window.innerHeight;
+  const pending = [...document.images].filter((img) => {
+    const r = img.getBoundingClientRect();
+    return r.bottom > 0 && r.top < height && r.width > 0 && !img.complete;
+  });
+  const loaded = Promise.all(
+    pending.map(
+      (img) =>
+        new Promise((resolve) => {
+          img.addEventListener('load', resolve, { once: true });
+          img.addEventListener('error', resolve, { once: true });
+        }),
+    ),
+  );
+  return Promise.race([loaded, new Promise((r) => setTimeout(r, 1500))]).then(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+  );
+}
+
+// Fixed/sticky headers would repeat in every stitched segment, so hide them
+// on every segment after the first. This runs as its own step, well after the
+// scroll: many sites (Google results among them) only pin their header from a
+// scroll handler, and those fire asynchronously — checking any earlier sees
+// the header still unpinned and walks straight past it.
+function hidePinned() {
+  for (const el of document.querySelectorAll('*')) {
+    const pos = getComputedStyle(el).position;
+    if ((pos === 'fixed' || pos === 'sticky') && !el.dataset.stashHidden && !el.dataset.stashScroller) {
+      el.dataset.stashHidden = '1';
+      el.style.visibility = 'hidden';
+    }
+  }
+  // Let the page repaint without them before the capture is taken.
+  return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 }
 
 function unpinAndRestore(y) {
@@ -114,7 +216,15 @@ function unpinAndRestore(y) {
     el.style.visibility = '';
     delete el.dataset.stashHidden;
   }
-  window.scrollTo(0, y);
+  const scroller = document.querySelector('[data-stash-scroller]');
+  if (scroller) {
+    scroller.scrollTop = y;
+    scroller.style.scrollBehavior = '';
+    delete scroller.dataset.stashScroller;
+  } else {
+    window.scrollTo(0, y);
+  }
+  document.documentElement.style.scrollBehavior = '';
 }
 
 export async function captureFullPage(fromTab) {
@@ -124,21 +234,70 @@ export async function captureFullPage(fromTab) {
     func: pageMetrics,
   });
 
-  const segments = Math.min(Math.ceil(m.scrollHeight / m.viewportHeight), MAX_FULL_PAGE_SEGMENTS);
-  const bitmaps = [];
-  const offsets = [];
+  const deviceSegmentHeight = m.viewportHeight * (m.dpr || 1);
+  const fitsInCanvas = Math.max(1, Math.floor(MAX_CANVAS_HEIGHT / deviceSegmentHeight));
+  const segments = Math.min(
+    Math.ceil(m.scrollHeight / m.viewportHeight),
+    MAX_FULL_PAGE_SEGMENTS,
+    fitsInCanvas,
+  );
+  // Each segment is drawn into the canvas and released straight away. Holding
+  // all twenty as bitmaps meant peak memory of twenty full-viewport images at
+  // once, which is where a long feed on a modest machine runs out of room.
+  let canvas = null;
+  let g = null;
+  let scale = 1;
+  let filledTo = 0;
+  let lastY = -1;
   try {
     for (let i = 0; i < segments; i++) {
-      const y = Math.min(i * m.viewportHeight, m.scrollHeight - m.viewportHeight);
-      await chrome.scripting.executeScript({
+      const target = Math.min(i * m.viewportHeight, m.scrollHeight - m.viewportHeight);
+      const [{ result: y }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        func: scrollAndPin,
-        args: [y, i > 0],
+        func: scrollToOffset,
+        args: [target],
       });
+      // The page refused to go any further, so every remaining segment would
+      // just repeat this one.
+      if (i > 0 && y <= lastY + 1) break;
+      lastY = y;
+
+      // Lets scroll handlers run and lazy content start arriving.
       await sleep(CAPTURE_DELAY_MS);
+      await chrome.scripting
+        .executeScript({ target: { tabId: tab.id }, func: settleViewport })
+        .catch(() => {});
+      if (i > 0) {
+        await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: hidePinned });
+      }
       const dataUrl = await grabVisible(tab.windowId);
-      bitmaps.push(await createImageBitmap(await (await fetch(dataUrl)).blob()));
-      offsets.push(y);
+      const shot = await createImageBitmap(await (await fetch(dataUrl)).blob());
+
+      let piece = shot;
+      if (m.rect) {
+        // Only the scrolling panel advances between segments; everything around
+        // it would repeat, so keep just the panel.
+        const deviceScale = shot.height / m.innerHeight;
+        piece = await createImageBitmap(
+          shot,
+          Math.round(m.rect.x * deviceScale),
+          Math.round(m.rect.y * deviceScale),
+          Math.max(1, Math.round(m.rect.width * deviceScale)),
+          Math.max(1, Math.round(m.rect.height * deviceScale)),
+        );
+        shot.close();
+      }
+
+      if (!canvas) {
+        scale = piece.height / m.viewportHeight; // actual device pixel ratio
+        const planned = Math.round(Math.min(m.scrollHeight, segments * m.viewportHeight) * scale);
+        canvas = new OffscreenCanvas(piece.width, Math.min(planned, MAX_CANVAS_HEIGHT));
+        g = canvas.getContext('2d');
+      }
+      const top = Math.round(y * scale);
+      g.drawImage(piece, 0, top);
+      filledTo = Math.max(filledTo, Math.min(top + piece.height, canvas.height));
+      piece.close();
     }
   } finally {
     await chrome.scripting.executeScript({
@@ -148,14 +307,11 @@ export async function captureFullPage(fromTab) {
     }).catch(() => {});
   }
 
-  const scale = bitmaps[0].height / m.viewportHeight; // device pixel ratio
-  const totalHeight = Math.round(Math.min(m.scrollHeight, segments * m.viewportHeight) * scale);
-  const canvas = new OffscreenCanvas(bitmaps[0].width, totalHeight);
-  const g = canvas.getContext('2d');
-  bitmaps.forEach((bmp, i) => g.drawImage(bmp, 0, Math.round(offsets[i] * scale)));
-  bitmaps.forEach((bmp) => bmp.close());
+  if (!canvas) throw new Error('Nothing could be captured from this page.');
 
-  const stitched = await createImageBitmap(canvas);
+  // Trim to what was actually drawn. The loop stops early when the page runs
+  // out of scroll, and the remainder would otherwise be blank.
+  const stitched = await createImageBitmap(canvas, 0, 0, canvas.width, filledTo || canvas.height);
   return saveBitmapAsShot(stitched, tab, 'fullpage');
 }
 

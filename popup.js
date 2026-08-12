@@ -1,5 +1,6 @@
-import { captureActiveTab } from './capture.js';
-import { getAllShots, countShots } from './db.js';
+import { captureActiveTab, pageBlockReason } from './capture.js';
+import { getAllShots, countShots, getShot } from './db.js';
+import { getSettings } from './settings.js';
 
 const captureBtn = document.getElementById('capture');
 const statusEl = document.getElementById('status');
@@ -14,11 +15,34 @@ async function currentTab() {
   return tab;
 }
 
+// Only the popup can do this. A service worker has no clipboard, so the
+// full-page and area captures — which run there so they survive the popup
+// closing — cannot copy themselves. Hence the narrow wording on the setting.
+async function maybeCopy(id) {
+  const { autoCopy } = await getSettings();
+  if (!autoCopy || id == null) return false;
+  try {
+    const shot = await getShot(id);
+    let blob = shot.blob;
+    if (blob.type !== 'image/png') {
+      const bitmap = await createImageBitmap(blob);
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      canvas.getContext('2d').drawImage(bitmap, 0, 0);
+      bitmap.close();
+      blob = await canvas.convertToBlob({ type: 'image/png' });
+    }
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 captureBtn.addEventListener('click', async () => {
   captureBtn.disabled = true;
   try {
-    await captureActiveTab(await currentTab());
-    showStatus('Saved to library ✓', 'ok');
+    const id = await captureActiveTab(await currentTab());
+    showStatus(await maybeCopy(id) ? 'Saved and copied ✓' : 'Saved to library ✓', 'ok');
     await refresh();
   } catch (err) {
     showStatus(err.message, 'err');
@@ -85,4 +109,73 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === 'shots-changed') refresh();
 });
 
+// Read the live bindings rather than hardcoding the defaults, so the hint stays
+// honest after someone rebinds the keys in chrome://extensions/shortcuts.
+async function showShortcuts() {
+  const labels = {
+    'capture-screenshot': 'this tab',
+    'capture-full-page': 'full page',
+    'capture-area': 'area',
+  };
+  const hint = document.getElementById('shortcut-hint');
+  const bound = (await chrome.commands.getAll()).filter((c) => c.shortcut && labels[c.name]);
+  if (!bound.length) return;
+
+  const heading = document.createElement('div');
+  heading.className = 'hint-heading';
+  heading.textContent = 'Works anywhere';
+  hint.append(heading);
+
+  for (const command of bound) {
+    const row = document.createElement('div');
+    row.className = 'hint-row';
+    const key = document.createElement('kbd');
+    key.textContent = command.shortcut;
+    const what = document.createElement('span');
+    what.textContent = labels[command.name];
+    row.append(key, what);
+    hint.append(row);
+  }
+  hint.hidden = false;
+}
+
+// Surface why a background capture failed — the badge flashes ✕ and is gone
+// before anyone can read it.
+async function showLastError() {
+  const { lastError } = await chrome.storage.local.get('lastError');
+  if (!lastError) return;
+  if (Date.now() - lastError.at > 10 * 60 * 1000) {
+    await chrome.storage.local.remove('lastError');
+    return;
+  }
+  showStatus(lastError.message, 'err');
+}
+
+// Say it up front rather than letting the click fail. A URL check alone cannot
+// do this: Chrome hides tab.url for exactly the pages that are blocked, so the
+// only reliable test is to try touching the page and see if it refuses. The
+// probe returns nothing and changes nothing.
+async function checkPageIsCapturable() {
+  const tab = await currentTab();
+  let reason = pageBlockReason(tab?.url || '');
+  if (!reason) {
+    if (!tab?.id) return false;
+    try {
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: () => true });
+      return false;
+    } catch {
+      reason = 'Chrome does not allow capturing browser or extension pages — including this one.';
+    }
+  }
+  captureBtn.disabled = true;
+  document.getElementById('capture-full').disabled = true;
+  document.getElementById('capture-area').disabled = true;
+  showStatus(`${reason} Open a normal website and try again.`, 'err');
+  return true;
+}
+
 refresh();
+showShortcuts();
+checkPageIsCapturable().then((blocked) => {
+  if (!blocked) showLastError();
+});
